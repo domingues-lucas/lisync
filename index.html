@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>lDrive</title>
+    <link rel="stylesheet" href="./assets/css/materialize.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    
+    <div class="container-fluid">
+        <div class="row no-margin">
+            <div class="col s3 no-padding">
+                <section class="menu-left">
+                    <a class="waves-effect waves-light"><i class="material-icons left">cloud</i>Remote Folder</a>
+                    <a class="waves-effect waves-light"><i class="material-icons left">folder</i>Local Folders</a>
+                </section>
+            </div>
+            <div class="col s9">
+                <h1>
+                    <img src="./assets/img/google-drive.png">
+                </h1>
+                <div class="wrapper-directory">
+                    <table class="header">
+                        <tr>
+                            <td class="select-all">
+                                <label>
+                                    <input type="checkbox" class="filled-in" checked="checked" />
+                                    <span></span>
+                                </label>
+                            </td>
+                            <td class='name'>Name</td>
+                            <td class="modified">Last modified</td>
+                            <td class="size">Size</td>
+                        </tr>
+                    </table>
+                    <div class="list-files">
+                        <ul id="remote" class="directory"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <script>
+        // You can also require other files to run in this process
+        require('./assets/js/renderer.js');
+    </script>
+
+</body>
+</html>

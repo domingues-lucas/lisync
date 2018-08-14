@@ -1,0 +1,116 @@
+/* 
+
+#ffd04c 
+#4787f3
+#1ea362
+
+*/
+
+/*-----------------------------*/
+/*** ICONS
+/*----------------------------*/
+
+.icon::before {
+    display: inline-block;
+    width: 22px;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+
+.folder::before {
+    content: url('../icons/folder.svg');
+}
+
+[type="checkbox"]+span:not(.lever) {
+    vertical-align: middle;
+}
+
+.no-padding {
+    padding: 0;
+}
+
+.no-margin {
+    margin: 0;
+}
+
+.menu-left {
+    width: 100%;
+    height: 100vh;
+    background-color: #f7f7f7;
+    border-right: 1px solid #eee;
+    padding-top: 22px;
+}
+
+.menu-left a {
+    color: #1ea362;
+    display: block;
+    padding: 12px 12px 12px 24px;
+    line-height: 26px;
+}
+
+.menu-left a:hover {
+    background-color: #eee;
+}
+
+h1 {
+    margin: 12px 0 0 0;
+    text-align: right;
+}
+
+h1 img {
+    width: 60px;
+}
+
+.wrapper-directory .select-all {
+    width: 34px;
+    padding-left: 12px;
+    padding-right: 0;
+}
+
+.wrapper-directory .name {
+    width: calc(50% - 46px);
+    display: inline-block;
+}
+
+.wrapper-directory td.name {
+    width: calc(50% + 3px);
+} 
+
+.wrapper-directory .modified {
+    width: 35%;
+    display: inline-block;
+}
+
+.wrapper-directory .size {
+    width: 10%;
+    display: inline-block;
+}
+
+.list-files {
+    overflow: auto;
+    height: calc(100vh - 150px);
+}
+
+.list-files .name,
+.list-files .modified,
+.list-files .size {
+    padding-left: 5px;
+}
+
+.directory {
+    margin: 0;
+}
+
+.directory a {
+    display: block;
+    color: rgba(0,0,0,.72);
+    padding: 14px 12px 10px 12px;
+    border-bottom: 1px solid #eee;
+    line-height: 14px;
+}
+
+.directory a:hover {
+    cursor: pointer;
+    background-color: #f7f7f7;
+    color: #4787f3;
+}
