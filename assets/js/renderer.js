@@ -1,8 +1,18 @@
 const cmd=require('node-cmd');
 const materialize=require('materialize-css');
 
-const processRef = cmd.get('rclone/rclone lsjson gdrive:/Afeto');
 
+// Open file Explorer
+const {shell} = require('electron')
+const os = require('os')
+const fileManagerBtn = document.getElementById('open-file-manager')
+
+fileManagerBtn.addEventListener('click', (event) => {
+  shell.showItemInFolder(os.homedir())
+})
+
+
+// Open remote folder
 var openFolder = function (path) {
     cmd.get(
         'rclone/rclone lsjson gdrive:/' + path,
@@ -55,3 +65,7 @@ openFolder('Afeto');
 //     }
 // );
 
+document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.modal');
+    var instances = M.Modal.init(elems);
+});

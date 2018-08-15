@@ -13,14 +13,44 @@
         <div class="row no-margin">
             <div class="col s3 no-padding">
                 <section class="menu-left">
+                    <h1>
+                        <img src="./assets/img/LINUX-LOGO.png">
+                        <img src="./assets/img/rclone-120x120.png">
+                        <img src="./assets/img/google-drive.png">
+                    </h1>
                     <a class="waves-effect waves-light"><i class="material-icons left">cloud</i>Remote Folder</a>
-                    <a class="waves-effect waves-light"><i class="material-icons left">folder</i>Local Folders</a>
+                    <a class="waves-effect waves-light"><i class="material-icons left">folder</i>Local Folder</a>
                 </section>
             </div>
             <div class="col s9">
-                <h1>
-                    <img src="./assets/img/google-drive.png">
-                </h1>
+                <header class="top-content">
+                    <div class="root-folder">
+                        <!-- Modal Trigger -->
+                        <a class="modal-trigger" href="#modal1">Afeto</a>
+                        <a class="waves-effect waves-light btn right" id="open-file-manager">Open folder</a>
+
+                        <!-- Modal Structure -->
+                        <div id="modal1" class="modal bottom-sheet">
+                            <div class="modal-content">
+                                <h3 class="header">Pastas Sincronizadas</h3>
+                                <ul class="collection">
+                                    <li class="collection-item avatar">
+                                        <a href="#!">
+                                            <img src="./assets/icons/folder.svg" class="circle">
+                                            <span class="name">Outra Pasta</span>
+                                        </a>
+                                    </li>
+                                    <li class="collection-item avatar">
+                                        <a href="#!">
+                                            <img src="./assets/icons/folder.svg" class="circle">
+                                            <span class="name">Mais uma Pasta</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </header>
                 <div class="wrapper-directory">
                     <table class="header">
                         <tr>
@@ -43,10 +73,7 @@
         </div>
     </div>
 
-    
-
     <script>
-        // You can also require other files to run in this process
         require('./assets/js/renderer.js');
     </script>
 

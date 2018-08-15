@@ -1,4 +1,4 @@
-# lrgdrive
+# LRGdrive
 
 **Linux + Rclone + Google Drive**
 
