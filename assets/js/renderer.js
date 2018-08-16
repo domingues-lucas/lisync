@@ -11,6 +11,46 @@ fileManagerBtn.addEventListener('click', (event) => {
   shell.showItemInFolder(os.homedir())
 })
 
+// Delegate
+Element.prototype.is = function(elementSelector) {
+    switch(elementSelector[0]) {
+        case ".":
+            var er = new RegExp(elementSelector.replace(".", ""));
+            return this.className.match(er);
+            break;
+        case "#":
+            return this.getAttribute("id") === elementSelector.replace("#", "");
+            break;
+        default:
+            return this.tagName === elementSelector.toUpperCase();
+            break;
+    }
+};
+var listEvents = [];
+
+Element.prototype.delegate = function(elementSelector, callback) {
+    listEvents.push({
+        elementSelector: elementSelector,
+        callback: callback
+    });
+};
+
+
+document.querySelector('body').addEventListener('click', function (evt) {
+
+    evt.preventDefault();
+
+    listEvents.forEach(function(e) {
+        if (evt.target.is(e.elementSelector)) {
+            e.callback.call(evt.target, evt);
+        }
+        if (evt.target.parentNode.is(e.elementSelector)) {
+            e.callback.call(evt.target.parentNode, evt);
+        }
+    });
+
+});
+
 
 // Open remote folder
 var openFolder = function (path) {
@@ -41,15 +81,26 @@ var openFolder = function (path) {
                         </a>
                     </li>
                 `;
+
             });
         }
     );
 }
 
-document.body.addEventListener('click', function (e) {
-    if ( e.target.parentElement.classList.contains('open-folder') ) {
-        openFolder(e.target.parentElement.getAttribute('attr-path') + '/' + e.target.innerText)
-    }
+document.querySelector('body').delegate('.open-folder', function(e){
+    openFolder(e.target.parentElement.getAttribute('attr-path') + '/' + e.target.innerText);
+});
+
+document.querySelector('body').delegate('.ajax-load', function(e){
+    fetch(e.target.href)
+    .then(response => response.text()) // retorna uma promise
+    .then(result => {
+        document.querySelector('#ajax-load').innerHTML = result;
+    })
+    .catch(err => {
+        // trata se alguma das promises falhar
+        console.error('Failed retrieving information', err);
+    });
 });
 
 

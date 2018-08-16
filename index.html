@@ -13,16 +13,18 @@
         <div class="row no-margin">
             <div class="col s3 no-padding">
                 <section class="menu-left">
-                    <h1>
+                    <!-- <h1>
                         <img src="./assets/img/LINUX-LOGO.png">
                         <img src="./assets/img/rclone-120x120.png">
                         <img src="./assets/img/google-drive.png">
-                    </h1>
-                    <a class="waves-effect waves-light"><i class="material-icons left">cloud</i>Remote Folder</a>
-                    <a class="waves-effect waves-light"><i class="material-icons left">folder</i>Local Folder</a>
+                    </h1> -->
+                    <a class="waves-effect waves-light ajax-load" href="live-sync.html"><i class="material-icons left">sync</i>Live Sync</a>
+                    <a class="waves-effect waves-light ajax-load" href="drive.html"><i class="material-icons left">cloud</i>Drive</a>
+                    <a class="waves-effect waves-light ajax-load" href="folders-sync.html"><i class="material-icons left">folder</i>Folders Sync</a>
+                    <a class="waves-effect waves-light ajax-load" href="settings.html"><i class="material-icons left">settings</i>Settings</a>
                 </section>
             </div>
-            <div class="col s9">
+            <div id="ajax-load" class="col s9">
                 <header class="top-content">
                     <div class="root-folder">
                         <!-- Modal Trigger -->
