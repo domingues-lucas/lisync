@@ -4,79 +4,44 @@
     <meta charset="UTF-8">
     <title>lDrive</title>
     <link rel="stylesheet" href="./assets/css/materialize.min.css">
+    <link rel="stylesheet" href="./assets/css/nav.css">
+    <link rel="stylesheet" href="./assets/css/section.css">
     <link rel="stylesheet" href="./assets/css/style.css">
+
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <link rel="import" href="sections/live-sync.html">
+    <link rel="import" href="sections/drive.html">
+    <link rel="import" href="sections/folders-sync.html">
+    <link rel="import" href="sections/settings.html">
 </head>
 <body>
     
     <div class="container-fluid">
         <div class="row no-margin">
             <div class="col s3 no-padding">
-                <section class="menu-left">
+                <nav class="nav js-nav">
                     <!-- <h1>
                         <img src="./assets/img/LINUX-LOGO.png">
                         <img src="./assets/img/rclone-120x120.png">
                         <img src="./assets/img/google-drive.png">
                     </h1> -->
-                    <a class="waves-effect waves-light ajax-load" href="live-sync.html"><i class="material-icons left">sync</i>Live Sync</a>
-                    <a class="waves-effect waves-light ajax-load" href="drive.html"><i class="material-icons left">cloud</i>Drive</a>
-                    <a class="waves-effect waves-light ajax-load" href="folders-sync.html"><i class="material-icons left">folder</i>Folders Sync</a>
-                    <a class="waves-effect waves-light ajax-load" href="settings.html"><i class="material-icons left">settings</i>Settings</a>
-                </section>
+                    <button id="button-live-sync" class="waves-effect waves-light nav-button" data-section="live-sync"><i class="material-icons left">sync</i>Live Sync</button>
+                    <button id="button-drive" class="waves-effect waves-light nav-button" data-section="drive"><i class="material-icons left">cloud</i>Drive</button>
+                    <button id="button-folders-sync" class="waves-effect waves-light nav-button" data-section="folders-sync"><i class="material-icons left">folder</i>Folders Sync</button>
+                    <button id="button-settings" class="waves-effect waves-light nav-button" data-section="settings"><i class="material-icons left">settings</i>Settings</button>
+                </nav>
             </div>
-            <div id="ajax-load" class="col s9">
-                <header class="top-content">
-                    <div class="root-folder">
-                        <!-- Modal Trigger -->
-                        <a class="modal-trigger" href="#modal1">Afeto</a>
-                        <a class="waves-effect waves-light btn right" id="open-file-manager">Open folder</a>
-
-                        <!-- Modal Structure -->
-                        <div id="modal1" class="modal bottom-sheet">
-                            <div class="modal-content">
-                                <h3 class="header">Pastas Sincronizadas</h3>
-                                <ul class="collection">
-                                    <li class="collection-item avatar">
-                                        <a href="#!">
-                                            <img src="./assets/icons/folder.svg" class="circle">
-                                            <span class="name">Outra Pasta</span>
-                                        </a>
-                                    </li>
-                                    <li class="collection-item avatar">
-                                        <a href="#!">
-                                            <img src="./assets/icons/folder.svg" class="circle">
-                                            <span class="name">Mais uma Pasta</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </header>
-                <div class="wrapper-directory">
-                    <table class="header">
-                        <tr>
-                            <td class="select-all">
-                                <label>
-                                    <input type="checkbox" class="filled-in" checked="checked" />
-                                    <span></span>
-                                </label>
-                            </td>
-                            <td class='name'>Name</td>
-                            <td class="modified">Last modified</td>
-                            <td class="size">Size</td>
-                        </tr>
-                    </table>
-                    <div class="list-files">
-                        <ul id="remote" class="directory"></ul>
-                    </div>
-                </div>
+            <div class="col s9 no-padding">
+                <main class="content js-content"></main>
             </div>
         </div>
     </div>
 
     <script>
-        require('./assets/js/renderer.js');
+        require('./assets/imports')
+        require('./assets/nav')
+        require('./renderer-process/renderer');
     </script>
 
 </body>

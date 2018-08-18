@@ -1,15 +1,18 @@
 const cmd=require('node-cmd');
 const materialize=require('materialize-css');
 
-
 // Open file Explorer
-const {shell} = require('electron')
+const shell = require('electron')
 const os = require('os')
-const fileManagerBtn = document.getElementById('open-file-manager')
+// const fileManagerBtn = document.getElementById('open-file-manager')
 
-fileManagerBtn.addEventListener('click', (event) => {
-  shell.showItemInFolder(os.homedir())
-})
+let page = {
+    source: 'index.html'
+}
+
+// fileManagerBtn.addEventListener('click', (event) => {
+//   shell.showItemInFolder(os.homedir())
+// })
 
 // Delegate
 Element.prototype.is = function(elementSelector) {
@@ -51,7 +54,6 @@ document.querySelector('body').addEventListener('click', function (evt) {
 
 });
 
-
 // Open remote folder
 var openFolder = function (path) {
     cmd.get(
@@ -87,6 +89,16 @@ var openFolder = function (path) {
     );
 }
 
+var beforePageLoad = function (pageSource) {
+
+    console.log(pageSource);
+
+    if ( pageSource === 'drive.html' ) {
+        openFolder('Afeto');
+    }
+
+}
+
 document.querySelector('body').delegate('.open-folder', function(e){
     openFolder(e.target.parentElement.getAttribute('attr-path') + '/' + e.target.innerText);
 });
@@ -95,7 +107,9 @@ document.querySelector('body').delegate('.ajax-load', function(e){
     fetch(e.target.href)
     .then(response => response.text()) // retorna uma promise
     .then(result => {
+        page.source = e.target.href;
         document.querySelector('#ajax-load').innerHTML = result;
+        beforePageLoad(page.source.split('/')[page.source.split('/').length - 1]);
     })
     .catch(err => {
         // trata se alguma das promises falhar
@@ -104,7 +118,7 @@ document.querySelector('body').delegate('.ajax-load', function(e){
 });
 
 
-openFolder('Afeto');
+
 
 // processRef.stdout.on(
 //     'data',
