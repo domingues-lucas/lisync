@@ -1,7 +1,6 @@
 const settings = require('electron-settings')
 
 document.body.addEventListener('click', (event) => {
-  console.log('click')
   if (event.target.dataset.section) {
     handleSectionTrigger(event)
   } else if (event.target.dataset.modal) {
@@ -12,6 +11,7 @@ document.body.addEventListener('click', (event) => {
 })
 
 function handleSectionTrigger (event) {
+
   hideAllSectionsAndDeselectButtons()
 
   // Highlight clicked button and show view
@@ -20,17 +20,16 @@ function handleSectionTrigger (event) {
   // Display the current section
   const sectionId = `${event.target.dataset.section}-section`
 
-  console.log(sectionId)
-
   document.getElementById(sectionId).classList.add('is-shown')
 
   // Save currently active button in localStorage
   const buttonId = event.target.getAttribute('id')
   settings.set('activeSectionButtonId', buttonId)
+
 }
 
 function activateDefaultSection () {
-  document.getElementById('button-live-sync').click()
+  document.getElementById('button-drive').click()
 }
 
 function showMainContent () {

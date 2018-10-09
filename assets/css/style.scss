@@ -1,0 +1,206 @@
+/* 
+
+#ffd04c 
+#4787f3
+#1ea362
+immiii
+*/
+
+/* ----------------------------*/
+/*** GENERAL
+/* ----------------------------*/
+
+.no-padding {
+    padding: 0;
+}
+
+.no-margin {
+    margin: 0;
+}
+
+.content {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+}
+
+h1 {
+    margin: 12px 0 0 0;
+    text-align: center;
+
+    img {
+        width: 42px;
+    }
+}
+
+/*-----------------------------*/
+/*** List files and folders
+/*----------------------------*/
+
+.wrapper-directory {
+    color: rgba(0,0,0,.72);
+
+    .name {
+        width: 53%;
+    }
+
+    .modified {
+        width: 35%;
+    }
+
+    .size {
+        width: 10%;
+    }
+    
+}
+
+
+.list-files {
+
+    overflow: auto;
+    height: calc(100vh - 200px);
+
+    .icon {
+
+        img {
+            display: inline-block;
+            width: 22px;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+    }
+
+    .name,
+    .modified,
+    .size {
+        padding-left: 5px;
+        display: inline-block;
+    }
+
+    .directory {
+        margin: 0;
+    
+        li{
+            border-bottom: 1px solid #eee;
+            padding: 14px 0 10px 0;
+            line-height: 14px;
+    
+            &:hover {
+                background-color: #f7f7f7;
+            }
+    
+            &.selected {
+                background-color: #eee;
+            }
+        }
+    
+        a {
+            color: rgba(0,0,0,.72);
+            line-height: 14px;
+    
+            &:hover {
+                cursor: pointer;
+                color: #4787f3;
+            }
+        }
+        
+    }
+
+}
+
+/* ------------------------------------*/
+/*** WELCOME
+/* ------------------------------------*/
+
+/* Welcome ------------------------ */
+
+.welcome {
+    width: 100%;
+    height: 100vh;
+    max-height: none;
+    border-radius: 0;
+    position: absolute;
+    display: flex;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    padding: 0;
+    background-color: hsl(0,0%,98%);
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+  }
+  .welcome.is-shown {
+    pointer-events: auto;
+    visibility: visible;
+    opacity: 1;
+    transform: scale(1);
+    transition: visibility 0s 0s linear , opacity .24s ease-out, transform .24s ease-out;
+  }
+
+  .welcome.is-shown .welcome-wrapper {
+    transform: scale(1);
+    transition: visibility 0s 0s linear , opacity .24s ease-out, transform .24s ease-out;
+  }
+
+  .welcome-wrapper {
+      overflow: auto;
+      width: 100%;
+      transform: scale(1.1);
+      transition: visibility 0s .12s linear , opacity .12s ease-in, transform .12s ease-in;
+  }
+
+/*-------------------------------------*/
+/*** FOLDERS SYNC
+/* ------------------------------------*/
+
+#folders-sync-section {
+
+    h2 {
+        margin: 0;
+        font-size: 16px;
+    }
+
+    li {
+        border-bottom: 1px solid #eee;
+        margin-bottom: 8px;
+    }
+
+    .local,
+    .remote {
+        width: calc(50% - 60px);
+    }
+
+    .local,
+    .remote,
+    .infos,
+    .folder,
+    .direction,
+    .actions {
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .infos {
+        padding: 7px 6px 6px 6px;
+    }
+
+    .direction {
+
+        .material-icons {
+            font-size: 45px;
+            color: #aaa;
+        }
+    }
+
+    .icon {
+
+        img {
+            width: 42px;
+        }
+    }
+}
