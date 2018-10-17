@@ -1,10 +1,8 @@
 /* 
 
-#ffd04c 
-#4787f3
-#1ea362
-immiii
-*/
+/* ----------------------------*/
+/*** VARIABLES
+/* ----------------------------*/
 /* ----------------------------*/
 /*** GENERAL
 /* ----------------------------*/
@@ -31,6 +29,15 @@ h1 img {
   width: 42px;
 }
 
+footer {
+  clear: both;
+}
+
+footer .btn,
+footer .btn-large {
+  margin: 12px 0 0 18px;
+}
+
 /*-----------------------------*/
 /*** List files and folders
 /*----------------------------*/
@@ -52,10 +59,10 @@ h1 img {
 
 .list-files {
   overflow: auto;
-  height: calc(100vh - 200px);
+  height: calc(100vh - 160px);
 }
 
-.list-files .icon img {
+.list-files .icon {
   display: inline-block;
   width: 22px;
   vertical-align: middle;
@@ -65,7 +72,7 @@ h1 img {
 .list-files .name,
 .list-files .modified,
 .list-files .size {
-  padding-left: 5px;
+  padding-left: 10px;
   display: inline-block;
 }
 
@@ -79,12 +86,16 @@ h1 img {
   line-height: 14px;
 }
 
-.list-files .directory li:hover {
+.list-files .directory li.item-select:hover {
   background-color: #f7f7f7;
 }
 
-.list-files .directory li.selected {
-  background-color: #eee;
+.list-files .directory li.item-select.selected {
+  background-color: #4787f3;
+}
+
+.list-files .directory li.item-select.selected a {
+  color: #fff;
 }
 
 .list-files .directory a {
@@ -159,41 +170,103 @@ h1 img {
 /*-------------------------------------*/
 /*** FOLDERS SYNC
 /* ------------------------------------*/
-#folders-sync-section h2 {
+.folders-sync h2 {
   margin: 0;
   font-size: 16px;
 }
 
-#folders-sync-section li {
+.folders-sync li {
   border-bottom: 1px solid #eee;
-  margin-bottom: 8px;
+  margin-top: 16px;
+  padding-bottom: 12px;
 }
 
-#folders-sync-section .local,
-#folders-sync-section .remote {
+.folders-sync .header .local {
+  width: calc(50% - 14px);
+}
+
+.folders-sync .local,
+.folders-sync .remote {
   width: calc(50% - 60px);
 }
 
-#folders-sync-section .local,
-#folders-sync-section .remote,
-#folders-sync-section .infos,
-#folders-sync-section .folder,
-#folders-sync-section .direction,
-#folders-sync-section .actions {
+.folders-sync .local,
+.folders-sync .remote,
+.folders-sync .infos,
+.folders-sync .folder,
+.folders-sync .direction,
+.folders-sync .actions {
   display: inline-block;
   vertical-align: top;
 }
 
-#folders-sync-section .infos {
+.folders-sync .actions {
+  margin-top: 12px;
+}
+
+.folders-sync .actions a {
+  color: #4787f3;
+}
+
+.folders-sync .infos {
   padding: 7px 6px 6px 6px;
 }
 
-#folders-sync-section .direction .material-icons {
+.folders-sync .direction .material-icons {
   font-size: 45px;
   color: #aaa;
 }
 
-#folders-sync-section .icon img {
+.folders-sync .icon img {
   width: 42px;
+}
+
+/*-------------------------------------*/
+/*** SELECT FOLDERS
+/* ------------------------------------*/
+.select-folders .header .local,
+.select-folders .header .remote {
+  width: 50%;
+}
+
+.select-folders .list-files {
+  width: 50%;
+  float: left;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.select-folders .list-files .name {
+  width: 100%;
+}
+
+.select-folders .selected-folders {
+  width: calc(100% - 290px);
+  padding-top: 25px;
+  float: left;
+}
+
+.select-folders .selected-folders .local,
+.select-folders .selected-folders .remote {
+  width: 50%;
+  float: left;
+}
+
+.select-folders .selected-folders h2 {
+  margin: 0;
+  font-size: 1em;
+}
+
+.select-folders .selected-folders .infos,
+.select-folders .selected-folders .direction {
+  float: left;
+}
+
+.select-folders .selected-folders .infos {
+  width: calc(100% - 50px);
+}
+
+.select-folders .selected-folders .direction {
+  padding-left: 12px;
 }
 /*# sourceMappingURL=style.css.map */

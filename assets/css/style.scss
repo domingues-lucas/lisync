@@ -1,10 +1,12 @@
 /* 
 
-#ffd04c 
-#4787f3
-#1ea362
-immiii
-*/
+/* ----------------------------*/
+/*** VARIABLES
+/* ----------------------------*/
+
+$yellow: #ffd04c; 
+$blue: #4787f3;
+$green: #1ea362;
 
 /* ----------------------------*/
 /*** GENERAL
@@ -33,6 +35,16 @@ h1 {
     }
 }
 
+footer {
+    clear: both;
+    
+    .btn,
+    .btn-large {
+        margin: 12px 0 0 18px;
+    }
+
+}
+
 /*-----------------------------*/
 /*** List files and folders
 /*----------------------------*/
@@ -54,26 +66,21 @@ h1 {
     
 }
 
-
 .list-files {
-
     overflow: auto;
-    height: calc(100vh - 200px);
+    height: calc(100vh - 160px);
 
     .icon {
-
-        img {
-            display: inline-block;
-            width: 22px;
-            vertical-align: middle;
-            margin-right: 6px;
-        }
+        display: inline-block;
+        width: 22px;
+        vertical-align: middle;
+        margin-right: 6px;
     }
 
     .name,
     .modified,
     .size {
-        padding-left: 5px;
+        padding-left: 10px;
         display: inline-block;
     }
 
@@ -84,14 +91,23 @@ h1 {
             border-bottom: 1px solid #eee;
             padding: 14px 0 10px 0;
             line-height: 14px;
+
+            &.item-select {
+
+                &:hover {
+                    background-color: #f7f7f7;
+                }
+        
+                &.selected {
+                    // background-color: #eee;
+                    background-color: $blue;
     
-            &:hover {
-                background-color: #f7f7f7;
+                    a {
+                        color: #fff;
+                    }
+                }
             }
     
-            &.selected {
-                background-color: #eee;
-            }
         }
     
         a {
@@ -107,6 +123,8 @@ h1 {
     }
 
 }
+
+
 
 /* ------------------------------------*/
 /*** WELCOME
@@ -158,7 +176,7 @@ h1 {
 /*** FOLDERS SYNC
 /* ------------------------------------*/
 
-#folders-sync-section {
+.folders-sync {
 
     h2 {
         margin: 0;
@@ -167,7 +185,15 @@ h1 {
 
     li {
         border-bottom: 1px solid #eee;
-        margin-bottom: 8px;
+        margin-top:16px;
+        padding-bottom: 12px;
+    }
+
+    .header {
+
+        .local {
+            width: calc(50% - 14px);
+        }
     }
 
     .local,
@@ -183,6 +209,14 @@ h1 {
     .actions {
         display: inline-block;
         vertical-align: top;
+    }
+
+    .actions {
+        margin-top: 12px;
+
+        a {
+            color: $blue;
+        }
     }
 
     .infos {
@@ -201,6 +235,61 @@ h1 {
 
         img {
             width: 42px;
+        }
+    }
+}
+
+/*-------------------------------------*/
+/*** SELECT FOLDERS
+/* ------------------------------------*/
+
+.select-folders {
+
+    .header {
+        .local,
+        .remote {
+            width: 50%;
+        }
+    }
+
+    .list-files {
+        width: 50%;
+        float: left;
+        overflow-y: scroll;
+        overflow-x: hidden;
+
+        .name {
+            width: 100%;
+        }
+    }
+
+    .selected-folders {
+        width: calc(100% - 290px);
+        padding-top: 25px;
+        float: left;
+
+        .local,
+        .remote {
+            width: 50%;
+            float: left;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 1em;
+        }
+
+        .infos,
+        .direction {
+            float: left;
+        }
+
+        .infos {
+            width: calc(100% - 50px);
+        }
+
+        .direction {
+            padding-left: 12px;
         }
     }
 }

@@ -1,62 +1,73 @@
 <template class="task-template">
-    <section id="folders-sync-section" class="section js-section">
-        
-        <ul>
-            <li>
-                <div class="local">
-                    <div class="icon folder"></div>
-                    <div class="infos">
-                        <h2>Afeto</h2>
-                        <label>C:/Users/ninguem/Afeto</label>
+    <section id="folders-sync-section" class="section js-section folders-sync">
+        <div class="wrapper-directory">
+            <table class="header">
+                <tr>
+                    <td class='local'>Local</td>
+                    <td class="remote">Remote</td>
+                </tr>
+            </table>
+            <ul>
+                <li>
+                    <div class="local">
+                        <span class="icon"><img src="./assets/icons/folder.svg"></span>
+                        <div class="infos">
+                            <h2>Afeto</h2>
+                            <label>C:/Users/ninguem/Afeto</label>
+                        </div>
                     </div>
-                </div>
-                <div class="direction">
-                    <i class="material-icons">chevron_right</i>
-                </div>
-                <div class="remote">
-                    <div class="icon folder"></div>
-                    <div class="infos">
-                        <h2>Afeto</h2>
-                        <label>drive:/Afeto</label>
+                    <div class="direction">
+                        <i class="material-icons">chevron_right</i>
                     </div>
-                </div>
-                <div class="actions">
-                    <a href="#!">
-                        <i class="material-icons">play_circle_outline</i>
-                    </a>
-                    <a href="#!">
-                        <i class="material-icons">delete_outline</i>
-                    </a>
-                </div>
-            </li>
-            <li>
-                <div class="local">
-                    <div class="icon folder"></div>
-                    <div class="infos">
-                        <h2>Photshop</h2>
-                        <label>C:/Users/ninguem/Photoshop</label>
+                    <div class="remote">
+                        <span class="icon"><img src="./assets/icons/folder.svg"></span>
+                        <div class="infos">
+                            <h2>Afeto</h2>
+                            <label>drive:/Afeto</label>
+                        </div>
                     </div>
-                </div>
-                <div class="direction">
-                    <i class="material-icons">chevron_right</i>
-                </div>
-                <div class="remote">
-                    <div class="icon folder"></div>
-                    <div class="infos">
-                        <h2>Design</h2>
-                        <label>drive:/design/photoshop</label>
+                    <div class="actions">
+                        <a href="#!">
+                            <i class="material-icons">play_circle_outline</i>
+                        </a>
+                        <a href="#!">
+                            <i class="material-icons">delete_outline</i>
+                        </a>
                     </div>
-                </div>
-                <div class="actions">
-                    <a href="#!">
-                        <i class="material-icons">pause_circle_outline</i>
-                    </a>
-                    <a href="#!">
-                        <i class="material-icons">delete_outline</i>
-                    </a>
-                </div>
-            </li>
-        </ul>
+                </li>
+                <li>
+                    <div class="local">
+                        <span class="icon"><img src="./assets/icons/folder.svg"></span>
+                        <div class="infos">
+                            <h2>Photshop</h2>
+                            <label>C:/Users/ninguem/Photoshop</label>
+                        </div>
+                    </div>
+                    <div class="direction">
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="remote">
+                        <span class="icon"><img src="./assets/icons/folder.svg"></span>
+                        <div class="infos">
+                            <h2>Design</h2>
+                            <label>drive:/design/photoshop</label>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <a href="#!">
+                            <i class="material-icons">pause_circle_outline</i>
+                        </a>
+                        <a href="#!">
+                            <i class="material-icons">delete_outline</i>
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <footer>
+            <button id="button-select-folders" class="waves-effect waves-light btn right" data-section="select-folders"><i class="material-icons left">add</i>New Sync</button>
+        </footer>
 
     </section>
 </template>
