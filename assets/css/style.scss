@@ -396,9 +396,12 @@ footer {
         overflow-x: hidden;
 
         li {
-            margin: 12px 0;
+            margin: 12px 0 0 0;
             padding-bottom: 12px;
             border-bottom: 1px solid #eee;
+            height: 77px;
+            overflow: hidden;
+            transition: all 1s;
             
             &::after {
                 content: '';
@@ -435,6 +438,23 @@ footer {
             .material-icons {
                 font-size: 32px;
             }
+        }
+
+        .pre-add {
+            opacity: 0;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            border: 0;
+        }
+
+        .remove {
+            opacity: 0;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            border: 0;
+            transition: all 1s;
         }
     }
 }

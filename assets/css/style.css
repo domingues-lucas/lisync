@@ -486,9 +486,13 @@ footer .btn-large {
 }
 
 .live-sync .active-syncs li {
-  margin: 12px 0;
+  margin: 12px 0 0 0;
   padding-bottom: 12px;
   border-bottom: 1px solid #eee;
+  height: 77px;
+  overflow: hidden;
+  -webkit-transition: all 1s;
+  transition: all 1s;
 }
 
 .live-sync .active-syncs li::after {
@@ -525,5 +529,23 @@ footer .btn-large {
 
 .live-sync .active-syncs .status .material-icons {
   font-size: 32px;
+}
+
+.live-sync .active-syncs .pre-add {
+  opacity: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+.live-sync .active-syncs .remove {
+  opacity: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  -webkit-transition: all 1s;
+  transition: all 1s;
 }
 /*# sourceMappingURL=style.css.map */

@@ -201,6 +201,8 @@ function loading(option) {
     option ? _progress.classList.add('show') : _progress.classList.remove('show');
 };
 
+let modifiedFiles;
+
 // Check modified files
 function checkSync() {
     loading(true);
@@ -210,10 +212,10 @@ function checkSync() {
             let _modifiedFiles = stderr.split('\n').filter( ( elem, index, arr ) => elem.indexOf( 'ERROR' ) !== -1 ),
                 _divContent = document.querySelector('#live-sync-section .active-syncs'); 
 
-            _modifiedFiles = _modifiedFiles.map( elem => elem.split(':')[3].trim() );
+            modifiedFiles = _modifiedFiles.map( elem => elem.split(':')[3].trim() );
             _divContent.innerHTML = '';
 
-            _modifiedFiles.forEach( function(e) {
+            modifiedFiles.forEach( function(e) {
                 let _extension = e.split('.')[1],
                     _icon = fileExtensions[_extension] ? fileExtensions[_extension] : 'file.svg',
                     _stats = getFileStats('/home/ninguem/Documentos/rclone', e);
@@ -222,7 +224,7 @@ function checkSync() {
                     <li>
                         <img class="icon left" src="./assets/icons/${_icon}"> 
                         <h2 class="name truncate left">${e}</h2>
-                        <label class="modified truncate left">${_stats.modified}</label>
+                        <label class="modified truncate left">${moment(_stats.modified).format('YYYY-MM-DD hh:mm:ss')}</label>
                         <label class="size truncate left">${_stats.size.bytesFormat()}</label>
                         <div class="status right"><i class="material-icons left rotation">sync</i></div>
                     </li>
@@ -230,6 +232,52 @@ function checkSync() {
 
             });
             loading(false);
+        }
+    );
+}
+
+function liveSync(){
+    cmd.get(
+        'rclone/rclone check  --one-way "/home/ninguem/Documentos/rclone" gdrive:/"rclone"',
+        function(err, data, stderr){
+            let _modifiedFiles = stderr.split('\n').filter( ( elem, index, arr ) => elem.indexOf( 'ERROR' ) !== -1 ),
+                _divContent = document.querySelector('#live-sync-section .active-syncs'),
+                _item = _divContent.querySelectorAll('li'),
+                _items_add = 0;
+
+            _modifiedFiles = _modifiedFiles.map( elem => elem.split(':')[3].trim() );
+
+            _modifiedFiles.forEach( function(e) {
+                if ( modifiedFiles.indexOf(e) === -1) {
+                    let _extension = e.split('.')[1],
+                        _icon = fileExtensions[_extension] ? fileExtensions[_extension] : 'file.svg',
+                        _stats = getFileStats('/home/ninguem/Documentos/rclone', e);
+
+                    _divContent.insertAdjacentHTML('afterbegin', `
+                        <li class="remove">
+                            <img class="icon left" src="./assets/icons/${_icon}"> 
+                            <h2 class="name truncate left">${e}</h2>
+                            <label class="modified truncate left">${moment(_stats.modified).format('YYYY-MM-DD hh:mm:ss')}</label>
+                            <label class="size truncate left">${_stats.size.bytesFormat()}</label>
+                            <div class="status right"><i class="material-icons left rotation">sync</i></div>
+                        </li>
+                    `);
+                    _divContent.querySelectorAll('li')[0].classList.remove('remove');
+                    _items_add++;
+                }
+            });
+
+            _divContent = document.querySelector('#live-sync-section .active-syncs');
+            _item = _divContent.querySelectorAll('li');
+
+            modifiedFiles.forEach( function(e, i) {
+                if ( _modifiedFiles.indexOf(e) === -1) {
+                    _item[i + _items_add].classList.add('remove');
+                }
+            });
+
+            modifiedFiles = _modifiedFiles;
+
         }
     );
 }
@@ -251,7 +299,7 @@ Number.prototype.bytesFormat = function() {
 };
 
 document.querySelector('#check-sync').addEventListener('click', function(event) {
-    checkSync();
+    liveSync();
 });
 
 function getFileStats(path, fileName) {
@@ -474,8 +522,6 @@ document.querySelector('#folders-sync-finish').addEventListener('click', functio
 
 function updateListSyncs() {
 
-    console.log('folders')
-
     if ( localStorage['folders-sync'] !== '' ) {
 
         document.querySelector('#list-syncs').innerHTML = '';
@@ -515,7 +561,10 @@ function updateListSyncs() {
             `
         });
 
-    };
+    }
+    else {
+        document.querySelector('#list-syncs').innerHTML = '<li>Nenhuma pasta e sincronia</li>';
+    }
 }
 
 document.querySelector('body').delegate('.ajax-load', function(e){
