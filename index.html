@@ -2,10 +2,8 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>lDrive</title>
+    <title>Lisync</title>
     <link rel="stylesheet" href="./assets/css/materialize.min.css">
-    <link rel="stylesheet" href="./assets/css/nav.css">
-    <link rel="stylesheet" href="./assets/css/section.css">
     <link rel="stylesheet" href="./assets/css/style.css">
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -16,23 +14,26 @@
     <link rel="import" href="sections/select-folders.html">
     <link rel="import" href="sections/settings.html">
     <link rel="import" href="sections/welcome.html">
+    
 </head>
 <body>
-    
+
+    <div class="progress">
+        <div class="indeterminate"></div>
+    </div>
+          
     <div class="container-fluid">
         <div class="row no-margin">
             <div class="col s3 no-padding">
                 <nav class="nav js-nav">
-                    <!-- <h1>
-                        <img src="./assets/img/LINUX-LOGO.png">
-                        <img src="./assets/img/rclone-120x120.png">
-                        <img src="./assets/img/google-drive.png">
-                    </h1> -->
+                    <h1>
+                        <img src="./assets/app-icon/png/lisync-logo.png">
+                    </h1>
                     <button id="button-live-sync" class="waves-effect waves-light nav-button" data-section="live-sync"><i class="material-icons left">sync</i>Live Sync</button>
                     <button id="button-drive" class="waves-effect waves-light nav-button" data-section="drive"><i class="material-icons left">cloud</i>Drive</button>
                     <button id="button-folders-sync" class="waves-effect waves-light nav-button" data-section="folders-sync"><i class="material-icons left">folder</i>Folders Sync</button>
                     <button id="button-settings" class="waves-effect waves-light nav-button" data-section="settings"><i class="material-icons left">settings</i>Settings</button>
-                    <button id="button-welcome" class="waves-effect waves-light nav-button" data-modal="welcome"><i class="material-icons left">settings</i>Welcome</button>
+                    <button id="button-welcome" class="waves-effect waves-light nav-button" data-modal="welcome"><i class="material-icons left">account_circle</i>Authentication</button>
                 </nav>
             </div>
             <div class="col s9 no-padding">
@@ -42,8 +43,6 @@
     </div>
 
     <script>
-        require('./assets/imports')
-        require('./assets/nav')
         require('./renderer-process/renderer');
     </script>
 

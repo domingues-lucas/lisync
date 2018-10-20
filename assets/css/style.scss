@@ -1,16 +1,38 @@
-/* 
-
 /* ----------------------------*/
 /*** VARIABLES
 /* ----------------------------*/
 
 $yellow: #ffd04c; 
 $blue: #4787f3;
-$green: #1ea362;
+$green: #60dd4d;
+$green-gdrive: #1ea362;
+$gray: #434343;
+
+/* ----------------------------*/
+/*** IMPORTS
+/* ----------------------------*/ 
+
+@import "nav.scss";
+@import "section.scss";
 
 /* ----------------------------*/
 /*** GENERAL
 /* ----------------------------*/
+
+.progress {
+    opacity: 0;
+    position: absolute;
+    margin: 0;
+    border-radius: 0;
+}
+
+.row {
+    margin-bottom: 0;
+}
+
+.show {
+    opacity: 1;
+}
 
 .no-padding {
     padding: 0;
@@ -27,15 +49,39 @@ $green: #1ea362;
 }
 
 h1 {
-    margin: 12px 0 0 0;
-    text-align: center;
+    margin: 12px 24px 24px 24px;
+    text-align: left;
 
     img {
-        width: 42px;
+        width: 200px;
+        max-width: 80%;
     }
 }
 
+.btn,
+.btn-large {
+    background-color: $blue;
+    color: #fff;
+
+    &:hover {
+        background-color: $blue;
+        opacity: 0.8;
+    }
+
+    &:active,
+    &:focus {
+        background-color: $blue;
+    }
+}
+
+.title-bar {
+    height: 6px;
+    background-color: $green;
+}
+
 footer {
+    padding-right: 12px;
+    border-top: 1px solid #ddd;
     clear: both;
     
     .btn,
@@ -45,43 +91,73 @@ footer {
 
 }
 
+
+/* ------------------------------------*/
+/*** ANIMATIONS
+/* ------------------------------------*/
+
+.rotation {
+    -webkit-animation: rotation 2s infinite linear;
+}
+
+@-webkit-keyframes rotation {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(359deg);
+    }
+}
+
 /*-----------------------------*/
 /*** List files and folders
 /*----------------------------*/
 
 .wrapper-directory {
-    color: rgba(0,0,0,.72);
+    color: $gray;
+
+    ul {
+        padding: 0;
+        margin: 0;
+    }
 
     .name {
-        width: 53%;
+        width: 58%;
     }
 
     .modified {
-        width: 35%;
+        width: 25%;
     }
 
     .size {
-        width: 10%;
+        width: 15%;
     }
     
 }
 
-.list-files {
-    overflow: auto;
-    height: calc(100vh - 160px);
+.list-files {   
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: calc(100vh - 128px);
 
     .icon {
         display: inline-block;
         width: 22px;
-        vertical-align: middle;
+        vertical-align: top;
         margin-right: 6px;
     }
 
     .name,
     .modified,
     .size {
-        padding-left: 10px;
         display: inline-block;
+        vertical-align: top;
+        padding-left: 10px;
+    }
+
+    .modified,
+    .size {
+        margin-top: 3px;
     }
 
     .directory {
@@ -89,8 +165,18 @@ footer {
     
         li{
             border-bottom: 1px solid #eee;
-            padding: 14px 0 10px 0;
+            padding: 12px 0 12px 0;
             line-height: 14px;
+
+            &:last-child {
+                border: 0;
+            }
+
+            .item-name {
+                display: inline-block;
+                vertical-align: top;
+                margin-top: 3px;
+            }
 
             &.item-select {
 
@@ -111,7 +197,7 @@ footer {
         }
     
         a {
-            color: rgba(0,0,0,.72);
+            color: $gray;
             line-height: 14px;
     
             &:hover {
@@ -123,8 +209,6 @@ footer {
     }
 
 }
-
-
 
 /* ------------------------------------*/
 /*** WELCOME
@@ -187,6 +271,10 @@ footer {
         border-bottom: 1px solid #eee;
         margin-top:16px;
         padding-bottom: 12px;
+
+        &:last-child {
+            border: none;;
+        }
     }
 
     .header {
@@ -220,6 +308,7 @@ footer {
     }
 
     .infos {
+        width: calc(100% - 60px);
         padding: 7px 6px 6px 6px;
     }
 
@@ -232,6 +321,7 @@ footer {
     }
 
     .icon {
+        width: 42px;
 
         img {
             width: 42px;
@@ -255,8 +345,6 @@ footer {
     .list-files {
         width: 50%;
         float: left;
-        overflow-y: scroll;
-        overflow-x: hidden;
 
         .name {
             width: 100%;
@@ -290,6 +378,63 @@ footer {
 
         .direction {
             padding-left: 12px;
+        }
+    }
+}
+
+/* ------------------------------------*/
+/*** LIVE SYNC
+/* ------------------------------------*/
+
+.live-sync {
+    padding: 0;
+
+    .active-syncs {
+        height: calc(100vh - 62px);
+        margin: 0;
+        overflow-y: scroll;
+        overflow-x: hidden;
+
+        li {
+            margin: 12px 0;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+            
+            &::after {
+                content: '';
+                clear: both;
+                display: block;
+            }
+
+            &:last-child {
+                border: none;
+            }
+        }
+
+        .icon {
+            width: 64px;
+            margin-right: 8px
+        }
+
+        .name,
+        .modified,
+        .size {
+            display: inline-block;
+            width: calc(100% - 134px);
+        }
+
+        .name {
+            margin: 4px 0 4px 0;
+            font-size: 18px;
+        }
+
+        .status {
+            margin-top: -28px;
+            color: $blue;
+
+            .material-icons {
+                font-size: 32px;
+            }
         }
     }
 }

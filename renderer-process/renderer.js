@@ -2,14 +2,108 @@
 
 const cmd=require('node-cmd');
 const materialize=require('materialize-css');
+const moment = require('moment');
+const shell = require('electron');
+const os = require('os');
+const fs = require('fs');
+const settings = require('electron-settings');
+const links = document.querySelectorAll('link[rel="import"]');
 
-// Open file Explorer
-const shell = require('electron')
-const os = require('os')
-// const fileManagerBtn = document.getElementById('open-file-manager')
+// Import and add each page to the DOM
+Array.prototype.forEach.call(links, (link) => {
+    let template = link.import.querySelector('.task-template'),
+        clone = document.importNode(template.content, true);
+    if (link.href.match('welcome.html')) {
+        document.querySelector('body').appendChild(clone);
+    } else {
+        document.querySelector('.content').appendChild(clone);
+    }
+});
 
-let page = {
-    source: 'index.html'
+document.body.addEventListener('click', (event) => {
+  if (event.target.dataset.section) {
+    handleSectionTrigger(event);
+  } else if (event.target.dataset.modal) {
+    handleModalTrigger(event);
+  } else if (event.target.classList.contains('modal-hide')) {
+    hideAllModals();
+  }
+});
+
+function handleSectionTrigger (event) {
+
+  hideAllSectionsAndDeselectButtons()
+
+	// Open/refresh remote or Local folders
+	const section = event.target.dataset.section;
+	if (section === 'drive') {
+		openFolder('/');
+    } 
+    else if (section == 'folders-sync') {
+        updateListSyncs();
+    }
+    else if (section == 'live-sync') {
+        checkSync();
+    }
+
+	// Highlight clicked button and show view
+	event.target.classList.add('is-selected');
+
+	// Display the current section
+	const sectionId = `${event.target.dataset.section}-section`;
+
+    document.getElementById(sectionId).classList.add('is-shown');
+
+	// Save currently active button in localStorage
+	const buttonId = event.target.getAttribute('id');
+	settings.set('activeSectionButtonId', buttonId);
+
+}
+
+function activateDefaultSection () {
+  document.getElementById('button-drive').click();
+}
+
+function showMainContent () {
+  document.querySelector('.js-nav').classList.add('is-shown');
+  document.querySelector('.js-content').classList.add('is-shown');
+}
+
+function handleModalTrigger (event) {
+  hideAllModals();
+  const modalId = `${event.target.dataset.modal}-modal`;
+  document.getElementById(modalId).classList.add('is-shown');
+}
+
+function hideAllModals () {
+  const modals = document.querySelectorAll('.modal.is-shown')
+  Array.prototype.forEach.call(modals, (modal) => {
+    modal.classList.remove('is-shown');
+  });
+  showMainContent();
+}
+
+function hideAllSectionsAndDeselectButtons () {
+  const sections = document.querySelectorAll('.js-section.is-shown')
+  Array.prototype.forEach.call(sections, (section) => {
+    section.classList.remove('is-shown');
+  });
+
+  const buttons = document.querySelectorAll('.nav-button.is-selected')
+  Array.prototype.forEach.call(buttons, (button) => {
+    button.classList.remove('is-selected');
+  });
+}
+
+// Default to the view that was active the last time the app was open
+const sectionId = settings.get('activeSectionButtonId');
+
+if (sectionId) {
+  showMainContent();
+  const section = document.getElementById(sectionId);
+  if (section) section.click();
+} else {
+  activateDefaultSection();
 }
 
 const fileExtensions = {
@@ -44,13 +138,8 @@ const fileExtensions = {
     'xlsx': 'xls.svg',
     'xml': 'xml.svg',
     'zip': 'zip.svg'
-}
+};
 
-// fileManagerBtn.addEventListener('click', (event) => {
-//   shell.showItemInFolder(os.homedir())
-// })
-
-// Delegate
 Element.prototype.is = function(elementSelector) {
     switch(elementSelector[0]) {
         case ".":
@@ -63,10 +152,10 @@ Element.prototype.is = function(elementSelector) {
         default:
             return this.tagName === elementSelector.toUpperCase();
             break;
-    }
+    };
 };
-let listEvents = [];
 
+let listEvents = [];
 Element.prototype.delegate = function(elementSelector, callback) {
     listEvents.push({
         elementSelector: elementSelector,
@@ -75,22 +164,16 @@ Element.prototype.delegate = function(elementSelector, callback) {
 };
 
 document.querySelector('body').addEventListener('click', function (evt) {
-
     evt.preventDefault();
-
     listEvents.forEach(function(e) {
-
         let elem = evt.target;
-
         while (elem.tagName != 'BODY') {
             if (elem.is(e.elementSelector)) {
                 e.callback.call(elem, elem);
             }
             elem = elem.parentNode;
-        }
-
+        };
     });
-
 });
 
 document.querySelector('#authorization').addEventListener('click', function() {
@@ -102,9 +185,9 @@ document.querySelector('#authorization').addEventListener('click', function() {
             if (data_line[data_line.length-1] == '\n') {
                 console.log(data_line);
                 // document.querySelector('#authorization-status').innerHTML += data_line;
-            }
+            };
         }
-    )
+    );
 });
 
 document.querySelector('#authorization-status .open-browser').addEventListener('click', function(event) {
@@ -113,31 +196,97 @@ document.querySelector('#authorization-status .open-browser').addEventListener('
     require("electron").shell.openExternal(link);
 });
 
-document.querySelector('#button-drive').addEventListener('click', function(event) {
-    beforePageLoad("drive.html");
+function loading(option) {
+    let _progress = document.querySelector('.progress');
+    option ? _progress.classList.add('show') : _progress.classList.remove('show');
+};
+
+// Check modified files
+function checkSync() {
+    loading(true);
+    cmd.get(
+        'rclone/rclone check  --one-way "/home/ninguem/Documentos/rclone" gdrive:/"rclone"',
+        function(err, data, stderr){
+            let _modifiedFiles = stderr.split('\n').filter( ( elem, index, arr ) => elem.indexOf( 'ERROR' ) !== -1 ),
+                _divContent = document.querySelector('#live-sync-section .active-syncs'); 
+
+            _modifiedFiles = _modifiedFiles.map( elem => elem.split(':')[3].trim() );
+            _divContent.innerHTML = '';
+
+            _modifiedFiles.forEach( function(e) {
+                let _extension = e.split('.')[1],
+                    _icon = fileExtensions[_extension] ? fileExtensions[_extension] : 'file.svg',
+                    _stats = getFileStats('/home/ninguem/Documentos/rclone', e);
+
+                _divContent.innerHTML += `
+                    <li>
+                        <img class="icon left" src="./assets/icons/${_icon}"> 
+                        <h2 class="name truncate left">${e}</h2>
+                        <label class="modified truncate left">${_stats.modified}</label>
+                        <label class="size truncate left">${_stats.size.bytesFormat()}</label>
+                        <div class="status right"><i class="material-icons left rotation">sync</i></div>
+                    </li>
+                `;
+
+            });
+            loading(false);
+        }
+    );
+}
+
+Number.prototype.bytesFormat = function() {
+    let value;
+    if ( this === 0 ) {
+        value = '-'
+    } else if ( this < 1000) {
+        value = this + ' B'
+    } else if ( this < 1000000 ) {
+        value = (this/1000).toFixed(1) + ' K'
+    } else if ( this < 1000000000 ) {
+        value = (this/1000000).toFixed(1) + ' M'
+    } else {
+        value = (this/1000000000).toFixed(1) + ' G'
+    }
+    return value;
+};
+
+document.querySelector('#check-sync').addEventListener('click', function(event) {
+    checkSync();
 });
 
+function getFileStats(path, fileName) {
+    let _stats = fs.statSync(path + '/' + fileName),
+        _details = {
+            'size': _stats.size,
+            'modified': _stats.mtime
+        };
+    return _details;
+}
+
 // Open remote folder
-let openFolder = function (path) {
+function openFolder(path) {
+    loading(true);
     cmd.get(
-        'rclone/rclone lsjson gdrive:/' + path,
+        'rclone/rclone lsjson --fast-list gdrive:/' + path,
         function(err, data, stderr){
 
-            document.querySelector('#remote').innerHTML = `
-                <li>
-                    <div class="name">
-                        <a class="open-folder" attr-path="${path}">
-                            <img class="icon" src="./assets/icons/folder.svg">
-                            <span class="item-name">..</span>
-                        </a>
-                    </div>
-                </li>
-            `;
+            if ( path !== '/' ) {
+                document.querySelector('#remote').innerHTML = `
+                    <li>
+                        <div class="name">
+                            <a class="open-folder" attr-path="${path}">
+                                <img class="icon" src="./assets/icons/folder.svg">
+                                <span class="item-name">..</span>
+                            </a>
+                        </div>
+                    </li>
+                `;
+            }
 
             JSON.parse(data).forEach(e => {
 
-                e.Size = e.Size === -1 ? '-' : e.Size + ' K';
-                e.ModTime = e.ModTime.replace(/[TZ]/g, ' ');
+                e.Size = e.Size === -1 ? '0' : e.Size;
+                e.ModTime = moment(e.ModTime).format('YYYY-MM-DD hh:mm:ss');
                 e.Extension = e.Name.split('.').slice(-1)[0];
 
                 e.IsDir ? ( e.Icon = 'folder.svg', e.Tag = 'a class="open-folder"' ) : ( e.Tag = 'div', fileExtensions[e.Extension] ? e.Icon = fileExtensions[e.Extension] : e.Icon = 'file.svg' );
@@ -151,23 +300,23 @@ let openFolder = function (path) {
                             </${e.Tag}>
                         </div>
                         <div class="modified">${e.ModTime}</div>
-                        <div class="size">${e.Size}</div>
+                        <div class="size truncate">${parseFloat(e.Size).bytesFormat()}</div>
                     </li>
                 `;
 
             });
+            loading(false);
         }
     );
 }
 
 document.querySelector('#button-select-folders').addEventListener('click', function(event) {
     openLocalFolder('/');
-    openRemoteFolder('Afeto');
+    openRemoteFolder('/');
 });
 
 // Open local folder
-var openLocalFolder = function (path) {
-
+function openLocalFolder(path) {
     cmd.get(
         'cd ' + path + ' && ls -d */',
         function(err, data, stderr){
@@ -197,17 +346,17 @@ var openLocalFolder = function (path) {
                             </div>
                         </li>
                     `;
-                }
+                };
             });
         }
     );
 }
 
 // Open remote folder
-var openRemoteFolder = function (path) {
-    console.log('OPEN!');
+function openRemoteFolder (path) {
+    loading(true);
     cmd.get(
-        'rclone/rclone lsjson gdrive:/' + path,
+        'rclone/rclone lsjson --fast-list gdrive:/' + path,
         function(err, data, stderr){
             let backDir = path;
                 backDir = backDir.split('/').pop();
@@ -237,18 +386,9 @@ var openRemoteFolder = function (path) {
                     `;
                 }
             });
+            loading(false);
         }
     );
-}
-
-var beforePageLoad = function (pageSource) {
-
-    console.log(pageSource);
-
-    if ( pageSource === 'drive.html' ) {
-        openFolder('Afeto');
-    }
-
 }
 
 document.querySelector('body').delegate('.open-folder', function(e){
@@ -271,7 +411,6 @@ document.querySelector('body').delegate('.open-local-folder', function(e){
 document.querySelector('body').delegate('.open-remote-folder', function(e){
     openRemoteFolder(e.getAttribute('attr-path') + '/' + e.querySelector('.item-name').innerText);
 });
-
 
 document.querySelector('body').delegate('.item-select', function(e){
 
@@ -311,20 +450,73 @@ document.querySelector('body').delegate('.item-select', function(e){
         if ( _local && _remote ) {
             let _finish = document.querySelector('#folders-sync-finish');
             _finish.disabled ? _finish.disabled = false : null;
-            addFolderSync(local.innerText + '"!#"' + _remote.innerText);
         }
 
     }
 
 });
 
-let addFolderSync = function addFolderSync(sync) {
-    let _current = localStorage['folders-sync'];
+!localStorage['folders-sync'] ? localStorage['folders-sync'] = '' : null;
 
-    _current.split(';')
-    console.log(current)
+function addFolderSync(sync) {
+    let _current =  localStorage['folders-sync'] !== '' ? JSON.parse(localStorage['folders-sync']) : [];
+    _current.push(sync);
+    localStorage['folders-sync'] = JSON.stringify(_current);
+    updateListSyncs();
 }
 
+document.querySelector('#folders-sync-finish').addEventListener('click', function() {
+    let _local = document.querySelector('.selected-folders .local .infos label'),
+        _remote = document.querySelector('.selected-folders .remote .infos label')
+    addFolderSync('["' + _local.innerText + '", "' + _remote.innerText + '"]');
+    document.querySelector('[data-section="folders-sync"]').click();
+});
+
+function updateListSyncs() {
+
+    console.log('folders')
+
+    if ( localStorage['folders-sync'] !== '' ) {
+
+        document.querySelector('#list-syncs').innerHTML = '';
+
+        let _item = '';
+
+        JSON.parse(localStorage['folders-sync']).forEach( function(e) {
+            _item = JSON.parse(e);
+            document.querySelector('#list-syncs').innerHTML += `
+                <li>
+                    <div class="local">
+                        <span class="icon"><img src="./assets/icons/folder.svg"></span>
+                        <div class="infos">
+                            <h2 class="truncate">${_item[0].split('/').pop()}</h2>
+                            <label class="truncate">${_item[0]}</label>
+                        </div>
+                    </div>
+                    <div class="direction">
+                        <i class="material-icons">chevron_right</i>
+                    </div>
+                    <div class="remote">
+                        <span class="icon"><img src="./assets/icons/folder.svg"></span>
+                        <div class="infos">
+                            <h2 class="truncate">${_item[1].split('/').pop()}</h2>
+                            <label class="truncate">${_item[1]}</label>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <a href="#!">
+                            <i class="material-icons">play_circle_outline</i>
+                        </a>
+                        <a href="#!">
+                            <i class="material-icons">delete_outline</i>
+                        </a>
+                    </div>
+                </li>
+            `
+        });
+
+    };
+}
 
 document.querySelector('body').delegate('.ajax-load', function(e){
     fetch(e.target.href)
@@ -341,8 +533,6 @@ document.querySelector('body').delegate('.ajax-load', function(e){
 });
 
 
-
-
 // processRef.stdout.on(
 //     'data',
 //     function(data) {
@@ -354,6 +544,6 @@ document.querySelector('body').delegate('.ajax-load', function(e){
 // );
 
 document.addEventListener('DOMContentLoaded', function() {
-    var elems = document.querySelectorAll('.modal');
-    var instances = M.Modal.init(elems);
+    let elems = document.querySelectorAll('.modal');
+    let instances = M.Modal.init(elems);
 });
