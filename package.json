@@ -1,29 +1,28 @@
 {
-  "name": "electron-quick-start",
+  "name": "Lisync",
   "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "description": "A Google Drive Sync",
   "main": "main.js",
   "scripts": {
     "start": "electron ."
   },
-  "repository": "https://github.com/electron/electron-quick-start",
+  "repository": "https://github.com/afonso-piroca/lrgdrive",
   "keywords": [
-    "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo"
+    "google drive",
+    "cloud",
+    "linux"
   ],
-  "author": "GitHub",
+  "author": "Lucas Domingues",
   "license": "CC0-1.0",
   "devDependencies": {
     "curl": "^0.1.4",
-    "electron": "^2.0.0",
-    "jquery": "^3.3.1",
+    "electron": "^2.0.8",
     "jsdom": "^11.12.0"
   },
   "dependencies": {
+    "electron-settings": "^3.2.0",
     "materialize-css": "^1.0.0-rc.2",
+    "moment": "^2.22.2",
     "node-cmd": "^3.0.0",
     "node-materialize": "^1.1.1"
   }

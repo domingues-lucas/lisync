@@ -1,0 +1,52 @@
+/* Nav */
+
+.nav {
+  width: 100%;
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: #f5f5f5;
+  padding-top: 6px;
+  visibility: hidden;
+  opacity: 0;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+.nav.is-shown {
+  visibility: visible;;
+  opacity: 1;
+}
+
+.nav-button {
+    display: block;
+    width: 100%;
+    cursor: pointer;
+    outline: none;
+    color: $gray;
+    display: block;
+    padding: 0 12px 0 24px;
+    line-height: 56px;
+    border: 0;
+    background: transparent;
+    text-align: left;
+
+    .material-icons {
+        color: $green;
+    }
+}
+
+.nav-button:hover,
+.nav-button:focus:not(.is-selected) {
+  background-color: #eee;
+}
+.nav-button.is-selected {
+  background-color: $green;
+}
+.nav-button.is-selected {
+    color: #fff;
+
+    .material-icons {
+        color: #fff;
+    }
+}

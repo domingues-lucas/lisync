@@ -1,0 +1,38 @@
+<template class="task-template">
+    <section id="select-folders-section" class="section js-section select-folders">
+        <div class="row">
+            <div class="col s12">
+                <div class="wrapper-directory">
+                    <table class="header">
+                        <tr>
+                            <td class='local'>Local</td>
+                            <td class="remote">Remote</td>
+                        </tr>
+                    </table>
+                    <ul>
+                        <li>
+                            <div class="local list-files">
+                                <div class="directory"></div>
+                            </div>
+                            <div class="remote list-files">
+                                <div class="directory"></div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
+                <footer>
+                    <div class="selected-folders">
+                        <span class="local"></span>
+                        <span class="remote"></span>
+                    </div>
+                    <button class="waves-effect waves-light btn right" id="folders-sync-finish" disabled><i class="material-icons left">done</i>Finish</button>
+                    <button class="waves-effect waves-light btn right" data-section="folders-sync"><i class="material-icons left">chevron_left</i>Back</button>
+                </footer>
+            </div>
+        </div>
+    </section>
+</template>
