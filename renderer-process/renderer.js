@@ -8,6 +8,7 @@ const os = require('os');
 const fs = require('fs');
 const settings = require('electron-settings');
 const links = document.querySelectorAll('link[rel="import"]');
+const rclone = process.platform === 'darwin' ? 'rclone/mac/rclone' : process.platform === 'win32' ? 'rclone/win/rclone' : 'rclone/linux/rclone';
 
 // Import and add each page to the DOM
 Array.prototype.forEach.call(links, (link) => {
@@ -178,7 +179,7 @@ document.querySelector('body').addEventListener('click', function (evt) {
 
 document.querySelector('#authorization').addEventListener('click', function() {
     let data_line = '';
-    cmd.get('rclone/rclone config create gdrive drive').stdout.on(
+    cmd.get(rclone + ' config create gdrive drive').stdout.on(
         'data',
         function(data) {
             data_line += data;
@@ -207,7 +208,7 @@ let modifiedFiles;
 function checkSync() {
     loading(true);
     cmd.get(
-        'rclone/rclone check  --one-way "/home/ninguem/Documentos/rclone" gdrive:/"rclone"',
+        rclone + ' check  --one-way "/home/ninguem/Documentos/rclone" gdrive:/"rclone"',
         function(err, data, stderr){
             let _modifiedFiles = stderr.split('\n').filter( ( elem, index, arr ) => elem.indexOf( 'ERROR' ) !== -1 ),
                 _divContent = document.querySelector('#live-sync-section .active-syncs'); 
@@ -238,7 +239,7 @@ function checkSync() {
 
 function liveSync(){
     cmd.get(
-        'rclone/rclone check  --one-way "/home/ninguem/Documentos/rclone" gdrive:/"rclone"',
+        rclone + ' check  --one-way "/home/ninguem/Documentos/rclone" gdrive:/"rclone"',
         function(err, data, stderr){
             let _modifiedFiles = stderr.split('\n').filter( ( elem, index, arr ) => elem.indexOf( 'ERROR' ) !== -1 ),
                 _divContent = document.querySelector('#live-sync-section .active-syncs'),
@@ -315,7 +316,7 @@ function getFileStats(path, fileName) {
 function openFolder(path) {
     loading(true);
     cmd.get(
-        'rclone/rclone lsjson --fast-list gdrive:/' + path,
+        rclone + ' lsjson --fast-list gdrive:/' + path,
         function(err, data, stderr){
 
             if ( path !== '/' ) {
@@ -404,7 +405,7 @@ function openLocalFolder(path) {
 function openRemoteFolder (path) {
     loading(true);
     cmd.get(
-        'rclone/rclone lsjson --fast-list gdrive:/' + path,
+        rclone + ' lsjson --fast-list gdrive:/' + path,
         function(err, data, stderr){
             let backDir = path;
                 backDir = backDir.split('/').pop();
