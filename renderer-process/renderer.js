@@ -9,6 +9,7 @@ const fs = require('fs');
 const settings = require('electron-settings');
 const links = document.querySelectorAll('link[rel="import"]');
 const rclone = process.platform === 'darwin' ? 'rclone/mac/rclone' : process.platform === 'win32' ? 'rclone/win/rclone' : 'rclone/linux/rclone';
+const $ = require('jquery');
 
 // Import and add each page to the DOM
 Array.prototype.forEach.call(links, (link) => {

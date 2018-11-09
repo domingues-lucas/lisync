@@ -216,7 +216,7 @@ footer {
 
 /* Welcome ------------------------ */
 
-.welcome {
+.authorization {
     width: 100%;
     height: 100vh;
     max-height: none;
@@ -235,26 +235,59 @@ footer {
     pointer-events: none;
     visibility: hidden;
     opacity: 0;
-  }
-  .welcome.is-shown {
+    transition: visibility 0s 0s linear , opacity .24s ease-out, transform .24s ease-out;
+}
+.authorization.is-shown {
     pointer-events: auto;
     visibility: visible;
     opacity: 1;
     transform: scale(1);
     transition: visibility 0s 0s linear , opacity .24s ease-out, transform .24s ease-out;
-  }
+}
 
-  .welcome.is-shown .welcome-wrapper {
+.authorization.is-shown .welcome-wrapper {
     transform: scale(1);
     transition: visibility 0s 0s linear , opacity .24s ease-out, transform .24s ease-out;
-  }
+}
 
-  .welcome-wrapper {
-      overflow: auto;
-      width: 100%;
-      transform: scale(1.1);
-      transition: visibility 0s .12s linear , opacity .12s ease-in, transform .12s ease-in;
-  }
+.welcome-wrapper {
+    overflow: auto;
+    width: 100%;
+    transform: scale(1.1);
+    transition: visibility 0s .12s linear , opacity .12s ease-in, transform .12s ease-in;
+}
+
+.authorization {
+    padding: 12px;
+
+    header {
+        padding-top: 90px;
+        text-align: center;
+
+        img {
+            margin-bottom: 30px;
+            width: 128px;
+        }
+    }
+
+    header,
+    main {
+        margin: 0 auto;
+        width: 400px;
+    }
+
+    .button-connect {
+        padding: 30px;
+        text-align: center;
+    }
+
+    footer {
+        position: absolute;
+        width: 100%;
+        bottom: 0;
+        left: 0;
+    }
+}
 
 /*-------------------------------------*/
 /*** FOLDERS SYNC

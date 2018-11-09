@@ -156,7 +156,7 @@ h1 {
 }
 
 h1 img {
-  width: 200px;
+  width: 256px;
   max-width: 80%;
 }
 
@@ -306,7 +306,7 @@ footer .btn-large {
 /*** WELCOME
 /* ------------------------------------*/
 /* Welcome ------------------------ */
-.welcome {
+.authorization {
   width: 100%;
   height: 100vh;
   max-height: none;
@@ -327,9 +327,13 @@ footer .btn-large {
   pointer-events: none;
   visibility: hidden;
   opacity: 0;
+  -webkit-transition: visibility 0s 0s linear , opacity .24s ease-out, -webkit-transform .24s ease-out;
+  transition: visibility 0s 0s linear , opacity .24s ease-out, -webkit-transform .24s ease-out;
+  transition: visibility 0s 0s linear , opacity .24s ease-out, transform .24s ease-out;
+  transition: visibility 0s 0s linear , opacity .24s ease-out, transform .24s ease-out , -webkit-transform .24s ease-out;
 }
 
-.welcome.is-shown {
+.authorization.is-shown {
   pointer-events: auto;
   visibility: visible;
   opacity: 1;
@@ -341,7 +345,7 @@ footer .btn-large {
   transition: visibility 0s 0s linear , opacity .24s ease-out, transform .24s ease-out , -webkit-transform .24s ease-out;
 }
 
-.welcome.is-shown .welcome-wrapper {
+.authorization.is-shown .welcome-wrapper {
   -webkit-transform: scale(1);
           transform: scale(1);
   -webkit-transition: visibility 0s 0s linear , opacity .24s ease-out, -webkit-transform .24s ease-out;
@@ -359,6 +363,38 @@ footer .btn-large {
   transition: visibility 0s .12s linear , opacity .12s ease-in, -webkit-transform .12s ease-in;
   transition: visibility 0s .12s linear , opacity .12s ease-in, transform .12s ease-in;
   transition: visibility 0s .12s linear , opacity .12s ease-in, transform .12s ease-in , -webkit-transform .12s ease-in;
+}
+
+.authorization {
+  padding: 12px;
+}
+
+.authorization header {
+  padding-top: 90px;
+  text-align: center;
+}
+
+.authorization header img {
+  margin-bottom: 30px;
+  width: 128px;
+}
+
+.authorization header,
+.authorization main {
+  margin: 0 auto;
+  width: 400px;
+}
+
+.authorization .button-connect {
+  padding: 30px;
+  text-align: center;
+}
+
+.authorization footer {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  left: 0;
 }
 
 /*-------------------------------------*/
