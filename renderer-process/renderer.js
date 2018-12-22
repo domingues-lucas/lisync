@@ -45,7 +45,7 @@ function handleSectionTrigger (event) {
         updateListSyncs();
     }
     else if (section == 'live-sync') {
-        checkSync();
+        checkFirst();
     }
 
 	// Highlight clicked button and show view
@@ -203,16 +203,16 @@ function loading(option) {
     option ? _progress.classList.add('show') : _progress.classList.remove('show');
 };
 
-let modifiedFiles;
+let modifiedFiles = [];
 
 // Check modified files
-function checkSync() {
+function checkFirst() {
     loading(true);
     cmd.get(
         rclone + ' check  --one-way "/home/ninguem/Documentos/rclone" gdrive:/"rclone"',
         function(err, data, stderr){
             let _modifiedFiles = stderr.split('\n').filter( ( elem, index, arr ) => elem.indexOf( 'ERROR' ) !== -1 ),
-                _divContent = document.querySelector('#live-sync-section .active-syncs'); 
+                _divContent = document.querySelector('#live-sync-section .active-syncs');
 
             modifiedFiles = _modifiedFiles.map( elem => elem.split(':')[3].trim() );
             _divContent.innerHTML = '';
@@ -224,11 +224,13 @@ function checkSync() {
 
                 _divContent.innerHTML += `
                     <li>
-                        <img class="icon left" src="./assets/icons/${_icon}"> 
-                        <h2 class="name truncate left">${e}</h2>
-                        <label class="modified truncate left">${moment(_stats.modified).format('YYYY-MM-DD hh:mm:ss')}</label>
-                        <label class="size truncate left">${_stats.size.bytesFormat()}</label>
-                        <div class="status right"><i class="material-icons left rotation">sync</i></div>
+                        <div class="name truncate">  
+                            <img class="icon" src="./assets/icons/${_icon}">
+                            <span class="item-name">${e}</span>
+                        </div>
+                        <div class="modified">${moment(_stats.modified).format('YYYY-MM-DD hh:mm:ss')}</div>
+                        <div class="size truncate">${_stats.size.bytesFormat()}</div>
+                        <div class="status"><i class="material-icons blink">cloud_upload</i></div>
                     </li>
                 `;
 
@@ -236,9 +238,21 @@ function checkSync() {
             loading(false);
         }
     );
+
+    liveSync();
 }
 
 function liveSync(){
+    liveCheck();
+    cmd.get(
+        rclone + ' sync --progress "/home/ninguem/Documentos/rclone" gdrive:/"rclone"',
+        function(err, data, stderr){
+            liveCheck();
+        }
+    );
+}
+
+function liveCheck(){
     cmd.get(
         rclone + ' check  --one-way "/home/ninguem/Documentos/rclone" gdrive:/"rclone"',
         function(err, data, stderr){
@@ -250,6 +264,7 @@ function liveSync(){
             _modifiedFiles = _modifiedFiles.map( elem => elem.split(':')[3].trim() );
 
             _modifiedFiles.forEach( function(e) {
+
                 if ( modifiedFiles.indexOf(e) === -1) {
                     let _extension = e.split('.')[1],
                         _icon = fileExtensions[_extension] ? fileExtensions[_extension] : 'file.svg',
@@ -257,11 +272,13 @@ function liveSync(){
 
                     _divContent.insertAdjacentHTML('afterbegin', `
                         <li class="remove">
-                            <img class="icon left" src="./assets/icons/${_icon}"> 
-                            <h2 class="name truncate left">${e}</h2>
-                            <label class="modified truncate left">${moment(_stats.modified).format('YYYY-MM-DD hh:mm:ss')}</label>
-                            <label class="size truncate left">${_stats.size.bytesFormat()}</label>
-                            <div class="status right"><i class="material-icons left rotation">sync</i></div>
+                            <div class="name truncate">  
+                                <img class="icon" src="./assets/icons/${_icon}">
+                                <span class="item-name">${e}</span>
+                            </div>
+                            <div class="modified">${moment(_stats.modified).format('YYYY-MM-DD hh:mm:ss')}</div>
+                            <div class="size truncate">${_stats.size.bytesFormat()}</div>
+                            <div class="status"><i class="material-icons blink">cloud_upload</i></div>
                         </li>
                     `);
                     _divContent.querySelectorAll('li')[0].classList.remove('remove');
@@ -271,10 +288,14 @@ function liveSync(){
 
             _divContent = document.querySelector('#live-sync-section .active-syncs');
             _item = _divContent.querySelectorAll('li');
+            let _modify_icon = '';
 
             modifiedFiles.forEach( function(e, i) {
                 if ( _modifiedFiles.indexOf(e) === -1) {
-                    _item[i + _items_add].classList.add('remove');
+                    _modify_icon = _item[i + _items_add].querySelector('.status .material-icons');
+                    _modify_icon.classList.remove('blink');
+                    _modify_icon.classList.add('done');
+                    _modify_icon.innerText = 'cloud_done';
                 }
             });
 
@@ -509,7 +530,9 @@ document.querySelector('body').delegate('.item-select', function(e){
 !localStorage['folders-sync'] ? localStorage['folders-sync'] = '' : null;
 
 function addFolderSync(sync) {
+
     let _current =  localStorage['folders-sync'] !== '' ? JSON.parse(localStorage['folders-sync']) : [];
+
     _current.push(sync);
     localStorage['folders-sync'] = JSON.stringify(_current);
     updateListSyncs();
@@ -517,8 +540,8 @@ function addFolderSync(sync) {
 
 document.querySelector('#folders-sync-finish').addEventListener('click', function() {
     let _local = document.querySelector('.selected-folders .local .infos label'),
-        _remote = document.querySelector('.selected-folders .remote .infos label')
-    addFolderSync('["' + _local.innerText + '", "' + _remote.innerText + '"]');
+        _remote = document.querySelector('.selected-folders .remote .infos label');
+    addFolderSync({ "local": _local.innerText, "remote": _remote.innerText, "status": true });
     document.querySelector('[data-section="folders-sync"]').click();
 });
 
@@ -530,36 +553,38 @@ function updateListSyncs() {
 
         let _item = '';
 
-        JSON.parse(localStorage['folders-sync']).forEach( function(e) {
-            _item = JSON.parse(e);
+        JSON.parse(localStorage['folders-sync']).forEach( function(e, i) {
+
             document.querySelector('#list-syncs').innerHTML += `
-                <li>
-                    <div class="local">
-                        <span class="icon"><img src="./assets/icons/folder.svg"></span>
-                        <div class="infos">
-                            <h2 class="truncate">${_item[0].split('/').pop()}</h2>
-                            <label class="truncate">${_item[0]}</label>
+                <div class="col s12 m6">
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="infos">
+                                <i class="material-icons left">computer</i>
+                                <span class="card-title truncate">${e['local'].split('/').pop()}</span>
+                                <p class="truncate">${e['local']}</p>
+                            </div>
+                            <div class="infos">
+                                <i class="material-icons left">cloud_upload</i>
+                                <span class="card-title truncate">${e['remote'].split('/').pop()}</span>
+                                <p class="truncate">${e['remote']}</p>
+                            </div>
+                        </div>
+                        <div class="card-action">
+                            <a href="#!" class="play-or-pause playing" data-item=${i}>
+                                <span class="play">
+                                    <i class="material-icons left">play_circle_outline</i>Iniciar
+                                </span>
+                                <span class="pause">
+                                    <i class="material-icons left">pause_circle_outline</i>Pausar
+                                </span>
+                            </a>
+                            <a href="#!" class="delete" data-item=${i}>
+                                <i class="material-icons left">delete_outline</i>Excluir
+                            </a>
                         </div>
                     </div>
-                    <div class="direction">
-                        <i class="material-icons">chevron_right</i>
-                    </div>
-                    <div class="remote">
-                        <span class="icon"><img src="./assets/icons/folder.svg"></span>
-                        <div class="infos">
-                            <h2 class="truncate">${_item[1].split('/').pop()}</h2>
-                            <label class="truncate">${_item[1]}</label>
-                        </div>
-                    </div>
-                    <div class="actions">
-                        <a href="#!">
-                            <i class="material-icons">play_circle_outline</i>
-                        </a>
-                        <a href="#!">
-                            <i class="material-icons">delete_outline</i>
-                        </a>
-                    </div>
-                </li>
+                </div>
             `
         });
 
@@ -569,20 +594,45 @@ function updateListSyncs() {
     }
 }
 
-document.querySelector('body').delegate('.ajax-load', function(e){
-    fetch(e.target.href)
-    .then(response => response.text()) // retorna uma promise
-    .then(result => {
-        page.source = e.target.href;
-        document.querySelector('#ajax-load').innerHTML = result;
-        beforePageLoad(page.source.split('/')[page.source.split('/').length - 1]);
-    })
-    .catch(err => {
-        // trata se alguma das promises falhar
-        console.error('Failed retrieving information', err);
-    });
+function updateStatusSync(item, status) {
+    let syncs = JSON.parse(localStorage['folders-sync']);
+    syncs[item].status = status;
+    localStorage['folders-sync'] = JSON.stringify(syncs);
+}
+
+function deleteSync(item) {
+    let syncs = JSON.parse(localStorage['folders-sync']);
+    syncs.splice(item, 1);
+    localStorage['folders-sync'] = JSON.stringify(syncs);
+}
+
+function pauseSync(item) {
+    updateStatusSync(item, false);
+}
+
+function playSync(item) {
+    updateStatusSync(item, true);
+}
+
+$('#list-syncs .play-or-pause').on('click', function() {
+    $(this).toggleClass('playing');
 });
 
+$('#list-syncs .play-or-pause .play').on('click', function() {
+    let item = $(this).parent().attr('data-item');
+    playSync(item);
+});
+
+$('#list-syncs .play-or-pause .pause').on('click', function() {
+    let item = $(this).parent().attr('data-item');
+    pauseSync(item);
+});
+
+$('#list-syncs').on('click', '.delete', function() {
+    let item = $(this).attr('data-item');
+    deleteSync(item);
+    $(this).parents('.card').parent().hide();
+});
 
 // processRef.stdout.on(
 //     'data',

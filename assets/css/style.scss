@@ -7,6 +7,7 @@ $blue: #4787f3;
 $green: #60dd4d;
 $green-gdrive: #1ea362;
 $gray: #434343;
+$gray-light: #9e9e9e;
 
 /* ----------------------------*/
 /*** IMPORTS
@@ -19,7 +20,27 @@ $gray: #434343;
 /*** GENERAL
 /* ----------------------------*/
 
+html {
+    overflow: hidden;
+}
+
+.window {
+    background-color: $gray;
+
+    img {
+        margin: 6px 8px 0 8px;
+    }
+
+    label {
+        color: #eee;
+        vertical-align: top;
+        line-height: 35px;
+        font-size: 0.9em;
+    }
+}
+
 .progress {
+    top: 36px;
     opacity: 0;
     position: absolute;
     margin: 0;
@@ -53,8 +74,7 @@ h1 {
     text-align: left;
 
     img {
-        width: 256px;
-        max-width: 80%;
+        width: 150px;
     }
 }
 
@@ -77,6 +97,22 @@ h1 {
 .title-bar {
     height: 6px;
     background-color: $green;
+}
+
+.card {
+
+    .card-action {
+
+        a {
+            display: inline-block;
+            line-height: 24px;
+            color: $blue !important;
+
+            &:last-child {
+                margin-right: 0 !important;
+            }
+        }
+    }
 }
 
 footer {
@@ -109,6 +145,16 @@ footer {
     }
 }
 
+.blink {
+    -webkit-animation: blink 1s infinite;
+}
+
+@-webkit-keyframes blink {
+    0%   {opacity: 1;}
+    50%  {opacity: 0.1;}
+    100% {opacity: 1;}
+}
+
 /*-----------------------------*/
 /*** List files and folders
 /*----------------------------*/
@@ -138,7 +184,7 @@ footer {
 .list-files {   
     overflow-y: scroll;
     overflow-x: hidden;
-    height: calc(100vh - 128px);
+    height: calc(100vh - 161px);
 
     .icon {
         display: inline-block;
@@ -149,7 +195,8 @@ footer {
 
     .name,
     .modified,
-    .size {
+    .size,
+    .status {
         display: inline-block;
         vertical-align: top;
         padding-left: 10px;
@@ -163,10 +210,13 @@ footer {
     .directory {
         margin: 0;
     
-        li{
+        li {
+            height: 46px;
             border-bottom: 1px solid #eee;
             padding: 12px 0 12px 0;
             line-height: 14px;
+            transition: all 1s;
+            opacity: 1;
 
             &:last-child {
                 border: 0;
@@ -185,7 +235,6 @@ footer {
                 }
         
                 &.selected {
-                    // background-color: #eee;
                     background-color: $blue;
     
                     a {
@@ -193,6 +242,14 @@ footer {
                     }
                 }
             }
+
+            &.remove {
+                height: 0;
+                opacity: 0;
+                border-bottom: 0;
+                transition: all 0.5s;
+            }
+
     
         }
     
@@ -295,70 +352,75 @@ footer {
 
 .folders-sync {
 
-    h2 {
-        margin: 0;
-        font-size: 16px;
+    padding: 0 10px 0 8px;
+
+    .list-files {
+        padding: 10px 8px 0 0;
+        height: calc(100vh - 97px);
     }
 
-    li {
-        border-bottom: 1px solid #eee;
-        margin-top:16px;
-        padding-bottom: 12px;
+    .card {
 
-        &:last-child {
-            border: none;;
+        .card-title {
+            margin-bottom: 0;
+            line-height: 110%;
+        }
+
+        .icon {
+            margin-right: 20px;
+
+            img {
+                width: 24px;
+            }
+        }
+
+        .infos {
+            padding: 0 0 22px 0;
+            width: 100%;
+
+            .material-icons {
+                color: $green;
+            }
+
+            &:last-child {
+                padding: 0;
+            }
+        }
+
+        p {
+            margin-left: 42px;
+            color: $gray-light;
+        }
+
+        .card-action {
+
+            a {
+                min-width: 88px;
+            }
+
+            .play {
+                display: inline-block;
+            }
+    
+            .pause {
+                display: none;
+            }
+    
+            .playing {
+    
+                .play {
+                    display: none;
+                }
+    
+                .pause {
+                    display: inline-block;
+                }
+            }
         }
     }
 
-    .header {
-
-        .local {
-            width: calc(50% - 14px);
-        }
-    }
-
-    .local,
-    .remote {
-        width: calc(50% - 60px);
-    }
-
-    .local,
-    .remote,
-    .infos,
-    .folder,
-    .direction,
-    .actions {
-        display: inline-block;
-        vertical-align: top;
-    }
-
-    .actions {
-        margin-top: 12px;
-
-        a {
-            color: $blue;
-        }
-    }
-
-    .infos {
-        width: calc(100% - 60px);
-        padding: 7px 6px 6px 6px;
-    }
-
-    .direction {
-
-        .material-icons {
-            font-size: 45px;
-            color: #aaa;
-        }
-    }
-
-    .icon {
-        width: 42px;
-
-        img {
-            width: 42px;
-        }
+    footer {
+        margin: 0 -10px;
     }
 }
 
@@ -420,74 +482,32 @@ footer {
 /* ------------------------------------*/
 
 .live-sync {
-    padding: 0;
-
-    .active-syncs {
-        height: calc(100vh - 62px);
-        margin: 0;
-        overflow-y: scroll;
-        overflow-x: hidden;
-
-        li {
-            margin: 12px 0 0 0;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #eee;
-            height: 77px;
-            overflow: hidden;
-            transition: all 1s;
-            
-            &::after {
-                content: '';
-                clear: both;
-                display: block;
-            }
-
-            &:last-child {
-                border: none;
-            }
-        }
-
-        .icon {
-            width: 64px;
-            margin-right: 8px
-        }
-
-        .name,
-        .modified,
-        .size {
-            display: inline-block;
-            width: calc(100% - 134px);
-        }
+    
+    .wrapper-directory {
 
         .name {
-            margin: 4px 0 4px 0;
-            font-size: 18px;
+            width: 50%;
+        }
+    
+        .modified {
+            width: 25%;
+        }
+    
+        .size {
+            width: 15%;
         }
 
         .status {
-            margin-top: -28px;
-            color: $blue;
+            width: 8%;
 
             .material-icons {
-                font-size: 32px;
+                position: absolute;
+                color: $blue;
             }
-        }
 
-        .pre-add {
-            opacity: 0;
-            height: 0;
-            padding: 0;
-            margin: 0;
-            border: 0;
-        }
-
-        .remove {
-            opacity: 0;
-            height: 0;
-            padding: 0;
-            margin: 0;
-            border: 0;
-            transition: all 1s;
+            .done {
+                color: $green;
+            }
         }
     }
 }
