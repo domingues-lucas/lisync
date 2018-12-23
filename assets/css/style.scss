@@ -207,13 +207,22 @@ footer {
         margin-top: 3px;
     }
 
+    .name {
+
+        .directory {
+            display: block;
+            color: $gray-light;
+            font-size: 11px;
+        }
+    }
+
     .directory {
         margin: 0;
     
         li {
-            height: 46px;
+            height: 47px;
             border-bottom: 1px solid #eee;
-            padding: 12px 0 12px 0;
+            padding-top: 12px;
             line-height: 14px;
             transition: all 1s;
             opacity: 1;
@@ -507,6 +516,26 @@ footer {
 
             .done {
                 color: $green;
+            }
+        }
+
+        .icon {
+            width: 25px;
+        }
+
+        .modified,
+        .size {
+            margin-top: 6px;
+        }
+
+        .directory {
+        
+            li {
+                height: 50px;
+
+                .item-name {
+                    margin-top: -2px;
+                }
             }
         }
     }

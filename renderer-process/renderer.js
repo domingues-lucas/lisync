@@ -11,6 +11,28 @@ const links = document.querySelectorAll('link[rel="import"]');
 const rclone = process.platform === 'darwin' ? 'rclone/mac/rclone' : process.platform === 'win32' ? 'rclone/win/rclone' : 'rclone/linux/rclone';
 const $ = require('jquery');
 
+function EasyLocalStorage(key) {
+
+    this.get = function(format) {
+        if ( format === 'parse' ) {
+            return JSON.parse(localStorage[key]);
+        } else {
+            return localStorage[key];
+        }
+    };
+
+    this.set = function(format, value) {
+        if ( format === 'parse' ) {
+            localStorage[key] =  JSON.stringify(value);
+        } else {
+            localStorage[key] = value;
+        }
+    };
+
+}
+
+let fS = new EasyLocalStorage('folders-sync');
+
 // Import and add each page to the DOM
 Array.prototype.forEach.call(links, (link) => {
     let template = link.import.querySelector('.task-template'),
@@ -45,7 +67,7 @@ function handleSectionTrigger (event) {
         updateListSyncs();
     }
     else if (section == 'live-sync') {
-        checkFirst();
+        checkSync('first');
     }
 
 	// Highlight clicked button and show view
@@ -206,103 +228,150 @@ function loading(option) {
 let modifiedFiles = [];
 
 // Check modified files
-function checkFirst() {
+function checkSync(step) {
+
     loading(true);
-    cmd.get(
-        rclone + ' check  --one-way "/home/ninguem/Documentos/rclone" gdrive:/"rclone"',
-        function(err, data, stderr){
-            let _modifiedFiles = stderr.split('\n').filter( ( elem, index, arr ) => elem.indexOf( 'ERROR' ) !== -1 ),
-                _divContent = document.querySelector('#live-sync-section .active-syncs');
 
-            modifiedFiles = _modifiedFiles.map( elem => elem.split(':')[3].trim() );
-            _divContent.innerHTML = '';
+    let foldersSync = fS.get('parse'),
+        divContent = document.querySelector('#live-sync-section .active-syncs'),
+        totalSyncs = foldersSync.length;
 
-            modifiedFiles.forEach( function(e) {
-                let _extension = e.split('.')[1],
-                    _icon = fileExtensions[_extension] ? fileExtensions[_extension] : 'file.svg',
-                    _stats = getFileStats('/home/ninguem/Documentos/rclone', e);
+    if ( step === 'first' ) {
 
-                _divContent.innerHTML += `
-                    <li>
-                        <div class="name truncate">  
-                            <img class="icon" src="./assets/icons/${_icon}">
-                            <span class="item-name">${e}</span>
-                        </div>
-                        <div class="modified">${moment(_stats.modified).format('YYYY-MM-DD hh:mm:ss')}</div>
-                        <div class="size truncate">${_stats.size.bytesFormat()}</div>
-                        <div class="status"><i class="material-icons blink">cloud_upload</i></div>
-                    </li>
-                `;
+        $.each(foldersSync, function( i, folderSync ) {
+
+            cmd.get(`${rclone} check  --one-way "${folderSync.local}" "gdrive:${folderSync.remote}"`, function(err, data, stderr){
+
+                let _modifiedFiles = stderr.split('\n').filter( ( elem, index, arr ) => elem.indexOf( 'ERROR' ) !== -1 );
+
+                modifiedFiles[i] = _modifiedFiles.map( elem => folderSync.local + '/' + elem.split(':')[3].trim() );
+
+                modifiedFiles[i].forEach( function(e) {
+                    let extension = e.lastElement('.'),
+                        icon = getIcon(extension),
+                        stats = getFileStats(e),
+                        name = e.lastElement('/');
+
+                    divContent.innerHTML += syncRowHTML('active', folderSync.local, icon, name, stats.modified, stats.size);
+
+                });
+
+                totalSyncs === i + 1 ? checkSync() : null;
 
             });
-            loading(false);
-        }
-    );
+        });
 
-    liveSync();
+    } else {
+
+        loading(true);
+
+        $.each(foldersSync, function( i, folderSync ) {
+
+            cmd.get(`${rclone} check  --one-way "${folderSync.local}" "gdrive:${folderSync.remote}"`, function(err, data, stderr){
+
+                let _modifiedFiles = stderr.split('\n').filter( ( elem, index, arr ) => elem.indexOf( 'ERROR' ) !== -1 ),
+                    item = divContent.querySelectorAll('li'),
+                    items_add = 0;
+
+                _modifiedFiles = _modifiedFiles.map( elem => folderSync.local + '/' + elem.split(':')[3].trim() );
+
+                _modifiedFiles.forEach( function(e) {
+
+                    if ( modifiedFiles[i].indexOf(e) === -1) {
+
+                        console.log(modifiedFiles[i] + "===" + e);
+
+                        let extension = e.lastElement('.'),
+                            icon = getIcon(extension),
+                            stats = getFileStats(folderSync.local, e),
+                            name = e.lastElement('/');
+
+                        divContent.insertAdjacentHTML('afterbegin', syncRowHTML('remove', folderSync.local, icon, name, stats.modified, stats.size));
+                        divContent.querySelectorAll('li')[0].classList.remove('remove');
+                        items_add++;
+                    }
+                });
+
+                divContent = document.querySelector('#live-sync-section .active-syncs');
+                item = divContent.querySelectorAll('li');
+                let modify_icon = '';
+
+                modifiedFiles[i].forEach( function(e, i) {
+                    if ( _modifiedFiles.indexOf(e) === -1) {
+                        modify_icon = item[i + items_add].querySelector('.status .material-icons');
+                        modify_icon.classList.remove('blink');
+                        modify_icon.classList.add('done');
+                        modify_icon.innerText = 'cloud_done';
+                    }
+                });
+
+                modifiedFiles[i] = _modifiedFiles;
+
+                totalSyncs === i + 1 ? loading(false) : null;
+
+            });
+
+        });
+
+    }
+
 }
+
+function syncRowHTML(_class, directory, icon, name, date, size) {
+    return `
+        <li class="${_class}">
+            <div class="name truncate">
+                <img class="icon" src="./assets/icons/${icon}">
+                <span class="item-name">
+                    ${name}
+                    <span class="directory">${directory}</span>
+                </span>
+            </div>
+            <div class="modified">${moment(date).format('YYYY-MM-DD hh:mm:ss')}</div>
+            <div class="size truncate">${size.bytesFormat()}</div>
+            <div class="status"><i class="material-icons blink">cloud_upload</i></div>
+        </li>
+    `;
+}
+
+let liveSyncInProgress = false;
 
 function liveSync(){
-    liveCheck();
-    cmd.get(
-        rclone + ' sync --progress "/home/ninguem/Documentos/rclone" gdrive:/"rclone"',
-        function(err, data, stderr){
-            liveCheck();
-        }
-    );
-}
 
-function liveCheck(){
-    cmd.get(
-        rclone + ' check  --one-way "/home/ninguem/Documentos/rclone" gdrive:/"rclone"',
-        function(err, data, stderr){
-            let _modifiedFiles = stderr.split('\n').filter( ( elem, index, arr ) => elem.indexOf( 'ERROR' ) !== -1 ),
-                _divContent = document.querySelector('#live-sync-section .active-syncs'),
-                _item = _divContent.querySelectorAll('li'),
-                _items_add = 0;
+    checkSync();
+    // cmd.get(
+    //     rclone + ' sync --progress "/home/ninguem/Documentos/rclone" gdrive:/"rclone"',
+    //     function(err, data, stderr){
+    //         checkSync();
+    //     }
+    // );
 
-            _modifiedFiles = _modifiedFiles.map( elem => elem.split(':')[3].trim() );
+    if ( !liveSyncInProgress ) {
 
-            _modifiedFiles.forEach( function(e) {
+        console.log('LiveSync START');
+        liveSyncInProgress = true;
 
-                if ( modifiedFiles.indexOf(e) === -1) {
-                    let _extension = e.split('.')[1],
-                        _icon = fileExtensions[_extension] ? fileExtensions[_extension] : 'file.svg',
-                        _stats = getFileStats('/home/ninguem/Documentos/rclone', e);
+        let foldersSync = fS.get('parse'),
+            totalSyncs = foldersSync.length;
 
-                    _divContent.insertAdjacentHTML('afterbegin', `
-                        <li class="remove">
-                            <div class="name truncate">  
-                                <img class="icon" src="./assets/icons/${_icon}">
-                                <span class="item-name">${e}</span>
-                            </div>
-                            <div class="modified">${moment(_stats.modified).format('YYYY-MM-DD hh:mm:ss')}</div>
-                            <div class="size truncate">${_stats.size.bytesFormat()}</div>
-                            <div class="status"><i class="material-icons blink">cloud_upload</i></div>
-                        </li>
-                    `);
-                    _divContent.querySelectorAll('li')[0].classList.remove('remove');
-                    _items_add++;
+        $.each(foldersSync, function( i, folderSync ) {
+
+            let processRef = cmd.get(`${rclone} sync --progress "${folderSync.local}" "gdrive:${folderSync.remote}"`, function(){
+                if ( totalSyncs === i + 1 ) {
+                    liveSyncInProgress = false;
+                    console.log("LiveSync END");
                 }
             });
 
-            _divContent = document.querySelector('#live-sync-section .active-syncs');
-            _item = _divContent.querySelectorAll('li');
-            let _modify_icon = '';
-
-            modifiedFiles.forEach( function(e, i) {
-                if ( _modifiedFiles.indexOf(e) === -1) {
-                    _modify_icon = _item[i + _items_add].querySelector('.status .material-icons');
-                    _modify_icon.classList.remove('blink');
-                    _modify_icon.classList.add('done');
-                    _modify_icon.innerText = 'cloud_done';
+            processRef.stdout.on(
+                'data',
+                function(data) {
+                    console.log(data)
                 }
-            });
+            );
 
-            modifiedFiles = _modifiedFiles;
-
-        }
-    );
+        });
+    }
 }
 
 Number.prototype.bytesFormat = function() {
@@ -321,18 +390,27 @@ Number.prototype.bytesFormat = function() {
     return value;
 };
 
-document.querySelector('#check-sync').addEventListener('click', function(event) {
-    liveSync();
-});
+String.prototype.lastElement = function(_split) {
+    let _array = this.split(_split);
+    return _array.pop();
+}
 
-function getFileStats(path, fileName) {
-    let _stats = fs.statSync(path + '/' + fileName),
+function getFileStats(file) {
+    let _stats = fs.statSync(file),
         _details = {
             'size': _stats.size,
             'modified': _stats.mtime
         };
     return _details;
 }
+
+function getIcon(_extension) {
+    return fileExtensions[_extension] ? fileExtensions[_extension] : 'file.svg'
+}
+
+document.querySelector('#check-sync').addEventListener('click', function(event) {
+    liveSync();
+});
 
 // Open remote folder
 function openFolder(path) {
@@ -527,14 +605,14 @@ document.querySelector('body').delegate('.item-select', function(e){
 
 });
 
-!localStorage['folders-sync'] ? localStorage['folders-sync'] = '' : null;
+!fS.get() ? fS.set(null, '') : null;
 
 function addFolderSync(sync) {
 
-    let _current =  localStorage['folders-sync'] !== '' ? JSON.parse(localStorage['folders-sync']) : [];
+    let _current = fS.get() !== '' ? fS.get('parse') : [];
 
     _current.push(sync);
-    localStorage['folders-sync'] = JSON.stringify(_current);
+    fS.set('parse', _current);
     updateListSyncs();
 }
 
@@ -547,13 +625,11 @@ document.querySelector('#folders-sync-finish').addEventListener('click', functio
 
 function updateListSyncs() {
 
-    if ( localStorage['folders-sync'] !== '' ) {
+    if ( fS.get() !== '' ) {
 
         document.querySelector('#list-syncs').innerHTML = '';
 
-        let _item = '';
-
-        JSON.parse(localStorage['folders-sync']).forEach( function(e, i) {
+        fS.get('parse').forEach( function(e, i) {
 
             document.querySelector('#list-syncs').innerHTML += `
                 <div class="col s12 m6">
@@ -595,15 +671,15 @@ function updateListSyncs() {
 }
 
 function updateStatusSync(item, status) {
-    let syncs = JSON.parse(localStorage['folders-sync']);
+    let syncs = fS.get('parse');
     syncs[item].status = status;
-    localStorage['folders-sync'] = JSON.stringify(syncs);
+    fS.set('parse', syncs);
 }
 
 function deleteSync(item) {
-    let syncs = JSON.parse(localStorage['folders-sync']);
+    let syncs = fS.get('parse');
     syncs.splice(item, 1);
-    localStorage['folders-sync'] = JSON.stringify(syncs);
+    fS.set('parse', syncs);
 }
 
 function pauseSync(item) {
@@ -614,16 +690,16 @@ function playSync(item) {
     updateStatusSync(item, true);
 }
 
-$('#list-syncs .play-or-pause').on('click', function() {
+$('#list-syncs').on('click', '.play-or-pause', function() {
     $(this).toggleClass('playing');
 });
 
-$('#list-syncs .play-or-pause .play').on('click', function() {
+$('#list-syncs').on('click', '.play-or-pause .play', function() {
     let item = $(this).parent().attr('data-item');
     playSync(item);
 });
 
-$('#list-syncs .play-or-pause .pause').on('click', function() {
+$('#list-syncs').on('click', '.play-or-pause .pause', function() {
     let item = $(this).parent().attr('data-item');
     pauseSync(item);
 });
