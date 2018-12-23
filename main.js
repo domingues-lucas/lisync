@@ -11,8 +11,8 @@ function createWindow () {
   	// Create the browser window.
 	mainWindow = new BrowserWindow({
 		// frame: false,
-		width: 1366,
-		height: 800,
+		width: 1600,
+		height: 900,
 		minWidth: 1281,
 		minHeight: 800,
 		icon: path.join(__dirname, 'assets/app-icon/png/64.png')

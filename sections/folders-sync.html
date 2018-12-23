@@ -1,57 +1,25 @@
 <template class="task-template">
     <section id="folders-sync-section" class="section js-section folders-sync">
 
-        <div class="row list-files" id="list-syncs">
-            <div class="col s12 m6">
-                <div class="card">
-                    <div class="card-content">
-                        <div class="infos">
-                            <i class="material-icons left">cloud_upload</i>
-                            <span class="card-title truncate">Home</span>
-                            <p class="truncate">/gdrive/home</p>
-                        </div>
-                        <div class="infos">
-                            <i class="material-icons left">computer</i>
-                            <span class="card-title truncate">Home</span>
-                            <p class="truncate">/workspaces/ninguem/home</p>
-                        </div>
-                    </div>
-                    <div class="card-action">
-                        <a href="#!" >
-                            <i class="material-icons left">play_circle_outline</i>Iniciar
-                        </a>
-                        <a href="#!">
-                            <i class="material-icons left">delete_outline</i>Excluir
-                        </a>
+        <div class="wrapper-directory">
+            <div class="header">
+                <div class="row">
+                    <div class="col s12">
+                        <ul>
+                            <li class='local' data-i18n="local"></li>
+                            <li class="remote" data-i18n="remote"></li>
+                            <li class="actions" data-i18n="actions"></li>
+                        </ul>
                     </div>
                 </div>
             </div>
-
-            <div class="col s12 m6">
-                <div class="card">
-                    <div class="card-content">
-                        <div class="infos">
-                            <i class="material-icons left">cloud_upload</i>
-                            <span class="card-title truncate">Home</span>
-                            <p class="truncate">/gdrive/home</p>
-                        </div>
-                        <div class="infos">
-                            <i class="material-icons left">computer</i>
-                            <span class="card-title truncate">Home</span>
-                            <p class="truncate">/workspaces/ninguem/home</p>
-                        </div>
-                    </div>
-                    <div class="card-action">
-                        <a href="#!" >
-                            <i class="material-icons left">play_circle_outline</i>Iniciar
-                        </a>
-                        <a href="#!">
-                            <i class="material-icons left">delete_outline</i>Excluir
-                        </a>
+            <div class="row">
+                <div class="col s12">
+                    <div class="list-files two-lines" id="list-syncs">
+                        <ul class="directory active-syncs"></ul>
                     </div>
                 </div>
             </div>
-            
         </div>
 
         <div class="row">

@@ -1,21 +1,27 @@
 <template class="task-template">
     <section id="drive-section" class="section js-section">
-        <div class="row">
-            <div class="col s12">
-                <div class="wrapper-directory">
-                    <table class="table-header">
-                        <tr>
-                            <td class='name'>Name</td>
-                            <td class="modified">Last modified</td>
-                            <td class="size">Size</td>
-                        </tr>
-                    </table>
+
+        <div class="wrapper-directory two-cols">
+            <div class="header">
+                <div class="row">
+                    <div class="col s12">
+                        <ul>
+                            <li class='name' data-i18n="name"></li>
+                            <li class="modified" data-i18n="last-modified"></li>
+                            <li class="size" data-i18n="size"></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s12">
                     <div class="list-files">
                         <ul id="remote" class="directory"></ul>
                     </div>
                 </div>
             </div>
         </div>
+
         <div class="row">
             <div class="col s12">
                 <footer>

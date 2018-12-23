@@ -117,7 +117,7 @@ html {
 }
 
 .progress {
-  top: 36px;
+  top: 35px;
   opacity: 0;
   position: absolute;
   margin: 0;
@@ -178,16 +178,6 @@ h1 img {
   background-color: #60dd4d;
 }
 
-.card .card-action a {
-  display: inline-block;
-  line-height: 24px;
-  color: #4787f3 !important;
-}
-
-.card .card-action a:last-child {
-  margin-right: 0 !important;
-}
-
 footer {
   padding-right: 12px;
   border-top: 1px solid #ddd;
@@ -238,6 +228,16 @@ footer .btn-large {
   color: #434343;
 }
 
+.wrapper-directory .header {
+  padding: 10px 15px 12px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.wrapper-directory .header li {
+  padding-left: 10px;
+  float: left;
+}
+
 .wrapper-directory ul {
   padding: 0;
   margin: 0;
@@ -255,24 +255,64 @@ footer .btn-large {
   width: 15%;
 }
 
+.wrapper-directory .local,
+.wrapper-directory .remote {
+  width: calc( 50% - 50px);
+}
+
+.wrapper-directory .actions {
+  width: 100px;
+}
+
+.wrapper-directory.two-cols .local,
+.wrapper-directory.two-cols .remote {
+  width: 50%;
+}
+
+.wrapper-directory.two-cols .remote {
+  padding-left: 17px;
+}
+
+.wrapper-directory.two-cols .list-files .local,
+.wrapper-directory.two-cols .list-files .remote {
+  width: 100%;
+}
+
+.wrapper-directory.two-cols .list-files .local,
+.wrapper-directory.two-cols .list-files .remote {
+  padding-left: 0;
+}
+
+.wrapper-directory.two-cols .list-files.remote {
+  padding-left: 0;
+}
+
 .list-files {
   overflow-y: scroll;
   overflow-x: hidden;
-  height: calc(100vh - 161px);
+  height: calc(100vh - 155px);
 }
 
 .list-files .icon {
-  display: inline-block;
+  float: left;
   width: 22px;
   vertical-align: top;
-  margin-right: 6px;
+  margin-right: 10px;
+  color: #60dd4d;
+}
+
+.list-files .icon.material-icons {
+  padding: 0 2px;
 }
 
 .list-files .name,
 .list-files .modified,
 .list-files .size,
-.list-files .status {
-  display: inline-block;
+.list-files .status,
+.list-files .local,
+.list-files .remote,
+.list-files .actions {
+  float: left;
   vertical-align: top;
   padding-left: 10px;
 }
@@ -282,7 +322,9 @@ footer .btn-large {
   margin-top: 3px;
 }
 
-.list-files .name .directory {
+.list-files .name .directory,
+.list-files .local .directory,
+.list-files .remote .directory {
   display: block;
   color: #9e9e9e;
   font-size: 11px;
@@ -332,6 +374,30 @@ footer .btn-large {
   transition: all 0.5s;
 }
 
+.list-files .directory li .actions a {
+  color: #4787f3;
+}
+
+.list-files .directory li .actions .play {
+  display: inline-block;
+}
+
+.list-files .directory li .actions .pause {
+  display: none;
+}
+
+.list-files .directory li .actions .playing .play {
+  display: none;
+}
+
+.list-files .directory li .actions .playing .pause {
+  display: inline-block;
+}
+
+.list-files .directory li .actions .material-icons {
+  margin-right: 4px;
+}
+
 .list-files .directory a {
   color: #434343;
   line-height: 14px;
@@ -340,6 +406,29 @@ footer .btn-large {
 .list-files .directory a:hover {
   cursor: pointer;
   color: #4787f3;
+}
+
+.list-files.two-lines .icon {
+  width: 25px;
+}
+
+.list-files.two-lines .icon.material-icons {
+  margin-top: -3px;
+  margin-right: 12px;
+  font-size: 25px;
+}
+
+.list-files.two-lines .modified,
+.list-files.two-lines .size {
+  margin-top: 6px;
+}
+
+.list-files.two-lines .directory li {
+  height: 50px;
+}
+
+.list-files.two-lines .directory li .item-name {
+  margin-top: -2px;
 }
 
 /* ------------------------------------*/
@@ -438,82 +527,9 @@ footer .btn-large {
 }
 
 /*-------------------------------------*/
-/*** FOLDERS SYNC
-/* ------------------------------------*/
-.folders-sync {
-  padding: 0 10px 0 8px;
-}
-
-.folders-sync .list-files {
-  padding: 10px 8px 0 0;
-  height: calc(100vh - 97px);
-}
-
-.folders-sync .card .card-title {
-  margin-bottom: 0;
-  line-height: 110%;
-}
-
-.folders-sync .card .icon {
-  margin-right: 20px;
-}
-
-.folders-sync .card .icon img {
-  width: 24px;
-}
-
-.folders-sync .card .infos {
-  padding: 0 0 22px 0;
-  width: 100%;
-}
-
-.folders-sync .card .infos .material-icons {
-  color: #60dd4d;
-}
-
-.folders-sync .card .infos:last-child {
-  padding: 0;
-}
-
-.folders-sync .card p {
-  margin-left: 42px;
-  color: #9e9e9e;
-}
-
-.folders-sync .card .card-action a {
-  min-width: 88px;
-}
-
-.folders-sync .card .card-action .play {
-  display: inline-block;
-}
-
-.folders-sync .card .card-action .pause {
-  display: none;
-}
-
-.folders-sync .card .card-action .playing .play {
-  display: none;
-}
-
-.folders-sync .card .card-action .playing .pause {
-  display: inline-block;
-}
-
-.folders-sync footer {
-  margin: 0 -10px;
-}
-
-/*-------------------------------------*/
 /*** SELECT FOLDERS
 /* ------------------------------------*/
-.select-folders .header .local,
-.select-folders .header .remote {
-  width: 50%;
-}
-
 .select-folders .list-files {
-  width: 50%;
   float: left;
 }
 
@@ -577,22 +593,5 @@ footer .btn-large {
 
 .live-sync .wrapper-directory .status .done {
   color: #60dd4d;
-}
-
-.live-sync .wrapper-directory .icon {
-  width: 25px;
-}
-
-.live-sync .wrapper-directory .modified,
-.live-sync .wrapper-directory .size {
-  margin-top: 6px;
-}
-
-.live-sync .wrapper-directory .directory li {
-  height: 50px;
-}
-
-.live-sync .wrapper-directory .directory li .item-name {
-  margin-top: -2px;
 }
 /*# sourceMappingURL=style.css.map */

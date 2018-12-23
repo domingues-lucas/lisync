@@ -1,5 +1,7 @@
 'use strict';
 
+const i18next = require('i18next');
+
 const cmd=require('node-cmd');
 const materialize=require('materialize-css');
 const moment = require('moment');
@@ -627,41 +629,45 @@ function updateListSyncs() {
 
     if ( fS.get() !== '' ) {
 
-        document.querySelector('#list-syncs').innerHTML = '';
+        document.querySelector('#list-syncs ul').innerHTML = '';
 
         fS.get('parse').forEach( function(e, i) {
 
-            document.querySelector('#list-syncs').innerHTML += `
-                <div class="col s12 m6">
-                    <div class="card">
-                        <div class="card-content">
-                            <div class="infos">
-                                <i class="material-icons left">computer</i>
-                                <span class="card-title truncate">${e['local'].split('/').pop()}</span>
-                                <p class="truncate">${e['local']}</p>
-                            </div>
-                            <div class="infos">
-                                <i class="material-icons left">cloud_upload</i>
-                                <span class="card-title truncate">${e['remote'].split('/').pop()}</span>
-                                <p class="truncate">${e['remote']}</p>
-                            </div>
-                        </div>
-                        <div class="card-action">
-                            <a href="#!" class="play-or-pause playing" data-item=${i}>
-                                <span class="play">
-                                    <i class="material-icons left">play_circle_outline</i>Iniciar
+            $('#list-syncs ul').append(`
+                <li>
+                    <div class="row">
+                        <div class="col s12">
+                            <div class="local truncate">
+                                <i class="material-icons icon left">computer</i>
+                                <span class="item-name">
+                                    ${e['local'].split('/').pop()}
+                                    <span class="directory">${e['local']}</span>
                                 </span>
-                                <span class="pause">
-                                    <i class="material-icons left">pause_circle_outline</i>Pausar
+                            </div>
+                            <div class="remote truncate">
+                                <i class="material-icons icon left">cloud_upload</i>
+                                <span class="item-name">
+                                    ${e['remote'].split('/').pop()}
+                                    <span class="directory">${e['remote']}</span>
                                 </span>
-                            </a>
-                            <a href="#!" class="delete" data-item=${i}>
-                                <i class="material-icons left">delete_outline</i>Excluir
-                            </a>
+                            </div>
+                            <div class="actions">
+                                <a href="#!" class="play-or-pause playing" data-item=${i}>
+                                    <span class="play">
+                                        <i class="material-icons">play_circle_outline</i>
+                                    </span>
+                                    <span class="pause">
+                                        <i class="material-icons">pause_circle_outline</i>
+                                    </span>
+                                </a>
+                                <a href="#!" class="delete" data-item=${i}>
+                                    <i class="material-icons">delete_outline</i>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `
+                </li>
+            `);
         });
 
     }
@@ -723,4 +729,27 @@ $('#list-syncs').on('click', '.delete', function() {
 document.addEventListener('DOMContentLoaded', function() {
     let elems = document.querySelectorAll('.modal');
     let instances = M.Modal.init(elems);
+});
+
+
+i18next.init({
+    lng: 'br',
+    debug: true,
+    resources: {
+        br: {
+            translation: {
+                    "name": "Nome",
+                    "last-modified": "Última modificação",
+                    "size": "Tamanho",
+                    "status": "Situação"
+                }
+            }
+    }
+}, function(err, t) {
+    $('[data-i18n]').each(function(){
+        let label = i18next.t(
+            $(this).attr('data-i18n')
+        );
+        $(this).html(label);
+    });
 });

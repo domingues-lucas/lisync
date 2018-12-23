@@ -1,22 +1,28 @@
 <template class="task-template">
     <section id="live-sync-section" class="section js-section live-sync">
-        <div class="row">
-            <div class="col s12">
-                    <div class="wrapper-directory">
-                        <table class="table-header">
-                            <tr>
-                                <td class='name'>Name</td>
-                                <td class="modified">Last modified</td>
-                                <td class="size">Size</td>
-                                <td class="status">Status</td>
-                            </tr>
-                        </table>
-                        <div class="list-files">
-                            <ul class="directory active-syncs"></ul>
-                        </div>
+
+        <div class="wrapper-directory two-cols">
+            <div class="header">
+                <div class="row">
+                    <div class="col s12">
+                        <ul>
+                            <li class='name' data-i18n="name"></li>
+                            <li class="modified" data-i18n="last-modified"></li>
+                            <li class="size" data-i18n="size"></li>
+                            <li class="status">Status</li>
+                        </ul>
                     </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s12">
+                    <div class="list-files two-lines">
+                        <ul class="directory active-syncs"></ul>
+                    </div>
+                </div>
             </div>
         </div>
+
         <div class="row">
             <div class="col s12">
                 <footer>
