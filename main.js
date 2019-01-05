@@ -1,139 +1,110 @@
-// Modules to control application life and create native browser window
-const {BrowserWindow, Menu, app, shell, dialog} = require('electron')
-const os = require('os')
-var path = require('path')
+'use strict';
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
-let mainWindow
+const {BrowserWindow, Menu, app, shell, dialog} = require('electron');
+const os = require('os');
+var path = require('path');
+
+var mainWindow;
 
 function createWindow () {
-  	// Create the browser window.
-	mainWindow = new BrowserWindow({
-		// frame: false,
-		width: 1600,
-		height: 900,
-		minWidth: 1281,
-		minHeight: 800,
-		icon: path.join(__dirname, 'assets/app-icon/png/64.png')
+
+    mainWindow = new BrowserWindow({
+        frame: false,
+        width: 1600,
+        height: 900,
+        minWidth: 1281,
+        minHeight: 800,
+        icon: path.join(__dirname, 'assets/app-icon/png/64.png')
     });
 
-    // mainWindow.setMenuBarVisibility(false);
-    // mainWindow.setAutoHideMenuBar(true);
-
-    // and load the index.html of the app.
-    mainWindow.loadFile('index.html')
-
-    // Open the DevTools.
-    mainWindow.webContents.openDevTools()
-
-    // Emitted when the window is closed.
+    mainWindow.loadFile('index.html');
+    mainWindow.webContents.openDevTools();
     mainWindow.on('closed', function () {
-        // Dereference the window object, usually you would store windows
-        // in an array if your app supports multi windows, this is the time
-        // when you should delete the corresponding element.
-        mainWindow = null
-    })
+        mainWindow = null;
+    });
 
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.on('ready', createWindow)
-
-// Quit when all windows are closed.
 app.on('window-all-closed', function () {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
-    app.quit()
+    app.quit();
   }
-})
+});
 
 app.on('activate', function () {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {
-    createWindow()
+    createWindow();
   }
-})
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+});
 
 let template = [{
     label: 'File',
-	submenu: [{
-		label: 'Exit',
-		accelerator: 'CmdOrCtrl+Q',
-		click: () => {
-            app.quit()
+    submenu: [{
+        label: 'Exit',
+        accelerator: 'CmdOrCtrl+Q',
+        click: () => {
+            app.quit();
         }
-	}],
+    }],
     }, {
-	label: 'View',
-	submenu: [{
+    label: 'View',
+    submenu: [{
         label: 'Reload',
         accelerator: 'CmdOrCtrl+R',
         click: (item, focusedWindow) => {
             if (focusedWindow) {
-                // on reload, start fresh and close any old
-                // open secondary windows
                 if (focusedWindow.id === 1) {
                     BrowserWindow.getAllWindows().forEach(win => {
-                        if (win.id > 1) win.close()
+                        if (win.id > 1) win.close();
                     })
                 }
                     focusedWindow.reload()
             }
-        }
-        }, {   
-        label: 'Toggle Full Screen',
-        accelerator: (() => {
-        if (process.platform === 'darwin') {
-            return 'Ctrl+Command+F'
-        } else {
-            return 'F11'
-        }
-        })(),
-        click: (item, focusedWindow) => {
-            if (focusedWindow) {
-                focusedWindow.setFullScreen(!focusedWindow.isFullScreen())
+        }}, {   label: 'Toggle Full Screen',
+                accelerator: (() => {
+                    if (process.platform === 'darwin') {
+                        return 'Ctrl+Command+F'
+                    } else {
+                        return 'F11'
+                    }
+                })(),
+                click: (item, focusedWindow) => {
+                    if (focusedWindow) {
+                        focusedWindow.setFullScreen(!focusedWindow.isFullScreen());
+                    }
+                }
+            }]
+    }, { label: 'Window',
+        role: 'window',
+        submenu: [{
+            label: 'Minimize',
+            accelerator: 'CmdOrCtrl+M',
+            role: 'minimize'
+        }, {
+            label: 'Close',
+            accelerator: 'CmdOrCtrl+W',
+            role: 'close'
+        }, {
+            type: 'separator'
+        }, {
+            label: 'Reopen Window',
+            accelerator: 'CmdOrCtrl+Shift+T',
+            enabled: false,
+            key: 'reopenMenuItem',
+            click: () => {
+            app.emit('activate');
             }
-        }
-    }]
-    }, {
-	label: 'Window',
-	role: 'window',
-	submenu: [{
-		label: 'Minimize',
-		accelerator: 'CmdOrCtrl+M',
-		role: 'minimize'
-	}, {
-		label: 'Close',
-		accelerator: 'CmdOrCtrl+W',
-		role: 'close'
-	}, {
-		type: 'separator'
-	}, {
-		label: 'Reopen Window',
-		accelerator: 'CmdOrCtrl+Shift+T',
-		enabled: false,
-		key: 'reopenMenuItem',
-		click: () => {
-		app.emit('activate')
-		}
-	}]
-	}, {
-	label: 'Help',
-	role: 'help',
-	submenu: [{
-		label: 'Github Project',
-		click: () => {
-		    shell.openExternal('https://github.com/afonso-piroca/lrgdrive')
-		}
-	}]
+        }]
+    },
+    {   label: 'Help',
+        role: 'help',
+        submenu: [{
+            label: 'Github Project',
+            click: () => {
+                shell.openExternal('https://github.com/afonso-piroca/lrgdrive');
+            }
+        }]
 }]
 
 function addUpdateMenuItems (items, position) {
@@ -221,7 +192,6 @@ function findReopenMenuItem () {
         }]
     })
 
-    // Window menu.
     template[3].submenu.push({
         type: 'separator'
     }, {

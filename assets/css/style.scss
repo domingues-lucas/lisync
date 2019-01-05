@@ -22,25 +22,12 @@ $gray-light: #9e9e9e;
 
 html {
     overflow: hidden;
-}
-
-.window {
-    background-color: $gray;
-
-    img {
-        margin: 6px 8px 0 8px;
-    }
-
-    label {
-        color: #eee;
-        vertical-align: top;
-        line-height: 35px;
-        font-size: 0.9em;
-    }
+    border-radius: 3px;
+    overflow: hidden;
 }
 
 .progress {
-    top: 35px;
+    top: 32px;
     opacity: 0;
     position: absolute;
     margin: 0;
@@ -109,6 +96,121 @@ footer {
         margin: 12px 0 0 18px;
     }
 
+}
+
+
+/* ----------------------------*/
+/*** TITLE BAR https://github.com/sidneys/electron-titlebar-windows
+/* ----------------------------*/
+
+.titlebar {
+    display: block;
+    position: relative;
+    height: 32px;
+    padding: 0;
+    background-color: $gray;
+}
+
+.titlebar.draggable {
+    -webkit-app-region: drag;
+}
+
+.titlebar-controls {
+    float: right;
+    text-align: left;
+}
+
+.titlebar:after,
+.titlebar-controls:after {
+    content: ' ';
+    display: table;
+    clear: both;
+}
+
+.titlebar-minimize,
+.titlebar-resize,
+.titlebar-close {
+    float: left;
+    width: 45px;
+    height: 32px;
+    margin: 0;
+    text-align: center;
+    line-height: 32px;
+
+    -webkit-transition: background-color .2s;
+    -moz-transition: background-color .2s;
+    -ms-transition: background-color .2s;
+    -o-transition: background-color .2s;
+    transition: background-color .2s;
+}
+
+.titlebar.draggable .titlebar-minimize,
+.titlebar.draggable .titlebar-resize,
+.titlebar.draggable .titlebar-close {
+    -webkit-app-region: no-drag;
+}
+
+.titlebar-minimize svg,
+.titlebar-resize svg.maximize-svg,
+.titlebar-resize svg.fullscreen-svg,
+.titlebar-close svg {
+    width: 10px;
+    height: 10px;
+    shape-rendering: crispEdges;
+   
+    rect,
+    polygon {
+        fill: $gray-light;
+    }
+}
+
+.titlebar-resize{ 
+
+    svg {
+
+        &.fullscreen-svg {
+            fill: $gray-light;
+        }
+
+        &.maximize-svg {
+
+            > path {
+                fill: #bbb;
+            }
+        }
+    }
+
+}
+
+
+.titlebar-close svg polygon {
+    -webkit-transition: fill .2s;
+    -moz-transition: fill .2s;
+    -ms-transition: fill .2s;
+    -o-transition: fill .2s;
+    transition: fill .2s;
+}
+
+.titlebar:not(.fullscreen) svg.maximize-svg {
+    display: none;
+}
+
+.titlebar.fullscreen svg.fullscreen-svg {
+    display: none;
+}
+
+.titlebar-minimize:hover,
+.titlebar-resize:hover,
+.titlebar-fullscreen:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.titlebar-close:hover {
+    background-color: rgba(232, 17, 35, 0.9);
+}
+
+.titlebar-close:hover svg polygon {
+    fill: rgba(255, 255, 255, 1);
 }
 
 
@@ -217,7 +319,7 @@ footer {
 .list-files {   
     overflow-y: scroll;
     overflow-x: hidden;
-    height: calc(100vh - 155px);
+    height: calc(100vh - 150px);
 
     .icon {
         float: left;
@@ -267,7 +369,6 @@ footer {
             border-bottom: 1px solid #eee;
             padding-top: 12px;
             line-height: 14px;
-            transition: all 1s;
             opacity: 1;
 
             &:last-child {
@@ -332,6 +433,11 @@ footer {
                 }
 
             }
+
+            p {
+                margin-left: 10px;
+                font-style: oblique;
+            }
         }
     
         a {
@@ -366,10 +472,19 @@ footer {
         .directory {
         
             li {
+                overflow: hidden;
+                opacity: 1;
                 height: 50px;
 
                 .item-name {
                     margin-top: -2px;
+                }
+
+                &.deleted {
+                    opacity: 0;
+                    height: 0;
+                    padding: 0;
+                    transition: all 1s;
                 }
             }
         }
@@ -473,7 +588,7 @@ footer {
 
     .selected-folders {
         width: calc(100% - 290px);
-        padding-top: 25px;
+        padding: 16px 0 16px 10px;
         float: left;
 
         .local,
@@ -498,6 +613,10 @@ footer {
 
         .direction {
             padding-left: 12px;
+        }
+
+        .material-icons {
+            color: $green;
         }
     }
 }
