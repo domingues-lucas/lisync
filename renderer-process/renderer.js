@@ -845,4 +845,6 @@ i18next.init({
 
 setTimeout(function(){ 
     $('#splash-screen-modal').removeClass('is-shown');
+    let window = BrowserWindow.getFocusedWindow();
+    window.maximize();
 }, 2000);
