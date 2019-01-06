@@ -388,20 +388,22 @@ function liveSync(){
 
             if ( folderSync.status ) {
 
-                let processRef = cmd.get(`${rclone} sync --progress "${folderSync.local}" "gdrive:${folderSync.remote}"`, function(){
-                    if ( totalSyncs === i + 1 ) {
-                        liveSyncInProgress = false;
-                        checkSync();
-                        console.log("LiveSync END");
-                    }
-                });
+                // Desabilitado para evitar upload incorreto durante desenvolvimento
 
-                processRef.stdout.on(
-                    'data',
-                    function(data) {
-                        console.log(data)
-                    }
-                );
+                // let processRef = cmd.get(`${rclone} sync --progress "${folderSync.local}" "gdrive:${folderSync.remote}"`, function(){
+                //     if ( totalSyncs === i + 1 ) {
+                //         liveSyncInProgress = false;
+                //         checkSync();
+                //         console.log("LiveSync END");
+                //     }
+                // });
+
+                // processRef.stdout.on(
+                //     'data',
+                //     function(data) {
+                //         console.log(data)
+                //     }
+                // );
 
             }
         });
@@ -412,18 +414,6 @@ $('#check-sync').on('click', function() {
     liveSync();
 });
 
-$('body').on('click', '.open-folder', function(){
-    let path = $(this).attr('attr-path'),
-        directory = $(this).find('.item-name').text();
-
-    if ( directory === '..' ) {
-        directory = path.split('/').slice(0, -1).join('/');
-    } else {
-        directory = path + '/' + directory;
-    }
-
-    openFolder(directory);
-});
 
 /* ------------------------------------*/
 /*** PAGE DRIVE
@@ -435,17 +425,21 @@ function openFolder(path) {
         rclone + ' lsjson --fast-list gdrive:/' + path,
         function(err, data, stderr){
 
-            if ( path !== '/' ) {
-                document.querySelector('#remote').innerHTML = `
+            $('#remote').html('');
+
+            let backDirectory = path.split('/').slice(0, -1).join('/');
+            if ( backDirectory !== '' ) {
+
+                $('#remote').html(`
                     <li>
                         <div class="name">
-                            <a class="open-folder" attr-path="${path}">
+                            <a class="open-folder" attr-path="${backDirectory}">
                                 <img class="icon" src="./assets/icons/folder.svg">
                                 <span class="item-name">..</span>
                             </a>
                         </div>
                     </li>
-                `;
+                `);
             }
 
             JSON.parse(data).forEach(e => {
@@ -456,7 +450,7 @@ function openFolder(path) {
 
                 e.IsDir ? ( e.Icon = 'folder.svg', e.Tag = 'a class="open-folder"' ) : ( e.Tag = 'div', fileExtensions[e.Extension] ? e.Icon = fileExtensions[e.Extension] : e.Icon = 'file.svg' );
 
-                document.querySelector('#remote').innerHTML += `
+                $('#remote').append(`
                     <li class="remote">
                         <div class="name truncate">
                             <${e.Tag} attr-path="${path}">
@@ -467,7 +461,7 @@ function openFolder(path) {
                         <div class="modified">${e.ModTime}</div>
                         <div class="size truncate">${parseFloat(e.Size).bytesFormat()}</div>
                     </li>
-                `;
+                `);
 
             });
             loading(false);
@@ -475,6 +469,10 @@ function openFolder(path) {
     );
 }
 
+$('body').on('click', '.open-folder', function(){
+    let path = ( $(this).attr('attr-path') + '/' + $(this).find('.item-name').text() ).replace('/..', '');
+    openFolder(path);
+});
 
 /* ------------------------------------*/
 /*** PAGE SELECT FOLDERS
@@ -488,11 +486,13 @@ function openLocalFolder(path) {
 
             $('.local.list-files .directory').html('');
 
-            if ( path !== '/' ) {
+            let backDirectory = path.split('/').slice(0, -1).join('/');
+            if ( backDirectory !== '' ) {
+
                 $('.local.list-files .directory').html(`
                     <li>
                         <div class="name">
-                            <a class="open-local-folder" attr-path="${path}">
+                            <a class="open-local-folder" attr-path="${backDirectory}">
                                 <img class="icon" src="./assets/icons/folder.svg">
                                 <span class="item-name">..</span>
                             </a>
@@ -526,22 +526,26 @@ function openRemoteFolder (path) {
         rclone + ' lsjson --fast-list gdrive:/' + path,
         function(err, data, stderr){
 
-            if ( path !== '/' ) {
-                document.querySelector('.remote.list-files .directory').innerHTML = `
+            $('.remote.list-files .directory').html('');
+
+            let backDirectory = path.split('/').slice(0, -1).join('/');
+            if ( backDirectory !== '' ) {
+
+                $('.remote.list-files .directory').html(`
                     <li>
                         <div class="name">
-                            <a class="open-remote-folder" attr-path="${path}">
+                            <a class="open-remote-folder" attr-path="${backDirectory}">
                                 <img class="icon" src="./assets/icons/folder.svg">
                                 <span class="item-name">..</span>
                             </a>
                         </div>
                     </li>
-                `;
+                `);
             }
 
             JSON.parse(data).forEach(e => {
                 if ( e.IsDir ){
-                    document.querySelector('.remote.list-files .directory').innerHTML += `
+                    $('.remote.list-files .directory').append(`
                         <li class="item-select remote unique">
                             <div class="name truncate">
                                 <a class="open-remote-folder" attr-path="${path}">
@@ -550,7 +554,7 @@ function openRemoteFolder (path) {
                                 </a>
                             </div>
                         </li>
-                    `;
+                    `);
                 }
             });
             loading(false);
@@ -558,13 +562,18 @@ function openRemoteFolder (path) {
     );
 }
 
-function selectedFolder(e) {
-    if ( e.hasClass('local') ) {
+function selectedFolder(path, source) {
+
+    console.log(path);
+
+    let name = path.split('/').pop();
+
+    if ( source === 'local' ) {
         $('.selected-folders .local').html(`
             <div class="infos">
                 <i class="material-icons icon left">computer</i>
-                <h2 class="truncate">${e.find(".item-name").text()}</h2>
-                <label class="truncate">${e.find('.open-local-folder').attr('attr-path') + '/' + e.find(".item-name").text()}</label>
+                <h2 class="truncate">${name}</h2>
+                <label class="truncate">${path}</label>
             </div>
             <div class="direction">
                 <i class="material-icons">chevron_right</i>
@@ -572,12 +581,12 @@ function selectedFolder(e) {
         `);
     }
 
-    if ( e.hasClass('remote') ) {
+    if ( source === 'remote' ) {
         $('.selected-folders .remote').html(`
             <div class="infos">
                 <i class="material-icons icon left">cloud_upload</i>
-                <h2 class="truncate">${e.find(".item-name").text()}</h2>
-                <label class="truncate">${e.find('.open-remote-folder').attr('attr-path') + '/' + e.find(".item-name").text()}</label>
+                <h2 class="truncate">${name}</h2>
+                <label class="truncate">${path}</label>
             </div>
         `);
     }
@@ -601,47 +610,36 @@ function addFolderSync(sync) {
 
 !localStorageFileSync.get() ? localStorageFileSync.set(null, '') : null;
 
-$('body').on('click', '.open-local-folder', function(){
-    let path = $(this).attr('attr-path'),
-        directory = $(this).find('.item-name').text();
-
-    if ( directory === '..' ) {
-        directory = path.split('/').slice(0, -1).join('/');
-    } else {
-        directory = path + '/' + directory;
-    }
-
-    openLocalFolder(directory);
+$('body').on('click', '.open-local-folder', function(event){
+    event.stopPropagation();
+    let path = ( $(this).attr('attr-path') + '/' + $(this).find('.item-name').text() ).replace('/..', '');
+    openLocalFolder(path);
+    selectedFolder(path, 'local');
 });
 
-$('body').on('click', '.open-remote-folder', function(){
-
-    let path = $(this).attr('attr-path'),
-    directory = $(this).find('.item-name').text();
-
-
-    if ( directory === '..' ) {
-        directory = path.split('/').slice(0, -1).join('/');
-    } else {
-        directory = path + '/' + directory;
-    }
-
-    openRemoteFolder(directory);
+$('body').on('click', '.open-remote-folder', function(event){
+    event.stopPropagation();
+    let path = ( $(this).attr('attr-path') + '/' + $(this).find('.item-name').text() ).replace('/..', '');
+    openRemoteFolder(path);
+    selectedFolder(path, 'remote');
 });
 
 
 $('body').on('click', '.item-select', function(){
 
+    let path = $(this).find('.open-local-folder').attr('attr-path') + '/' + $(this).find(".item-name").text(),
+        source = $(this).hasClass('local') ? 'local' : 'remote';
+
     if ( !event.target.classList.contains('icon') && !event.target.classList.contains('item-name') ) {
 
         if (!event.ctrlKey || $(this).hasClass('unique')) {
-            let _origin = $(this).hasClass('local') ? '.local' : '.remote';
-            $('.item-select' + _origin).removeClass('selected');
+            $('.item-select.' + source).removeClass('selected');
         }
         $(this).toggleClass('selected');
+
     }
 
-    selectedFolder($(this));
+    selectedFolder(path, source);
 
 });
 
