@@ -1,5 +1,9 @@
 'use strict';
 
+/* ------------------------------------*/
+/*** IMPORTS
+/* ------------------------------------*/
+
 const i18next = require('i18next');
 const cmd = require('node-cmd');
 const materialize = require('materialize-css');
@@ -12,6 +16,23 @@ const settings = require('electron-settings');
 const links = document.querySelectorAll('link[rel="import"]');
 const rclone = process.platform === 'darwin' ? 'rclone/mac/rclone' : process.platform === 'win32' ? 'rclone/win/rclone' : 'rclone/linux/rclone';
 const $ = require('jquery');
+
+// Import and add each page to the DOM
+Array.prototype.forEach.call(links, (link) => {
+    let template = link.import.querySelector('.task-template'),
+        clone = document.importNode(template.content, true);
+
+    if ( link.dataset.window === 'modal' ) {
+        document.querySelector('body').appendChild(clone);
+    } else {
+        document.querySelector('.content').appendChild(clone);
+    }
+});
+
+
+/* ------------------------------------*/
+/*** GENERAL FUNCTIONS
+/* ------------------------------------*/
 
 function EasyLocalStorage(key) {
 
@@ -32,33 +53,6 @@ function EasyLocalStorage(key) {
     };
 
 }
-
-let fS = new EasyLocalStorage('folders-sync');
-
-// Import and add each page to the DOM
-Array.prototype.forEach.call(links, (link) => {
-    let template = link.import.querySelector('.task-template'),
-        clone = document.importNode(template.content, true);
-    if (link.href.match('welcome.html')) {
-        document.querySelector('body').appendChild(clone);
-    } else {
-        document.querySelector('.content').appendChild(clone);
-    }
-});
-
-$('body').on('click', '.open-content', function() {
-
-    if ( $(this).attr('data-section') ) {
-        handleSectionTrigger($(this));
-
-    } else if ( $(this).attr('data-modal') ) {
-        handleModalTrigger($(this));
-
-    } else if ( $(this).hasClass('modal-hide') ) {
-        hideAllModals();
-    }
-
-});
 
 function handleSectionTrigger (e) {
 
@@ -86,6 +80,11 @@ function handleSectionTrigger (e) {
 
 }
 
+function handleModalTrigger (e) {
+    hideAllModals();
+    $(`#${e.attr('data-modal')}-modal`).addClass('is-shown');
+}
+
 function activateDefaultSection () {
     $('#button-drive').click();
 }
@@ -93,11 +92,6 @@ function activateDefaultSection () {
 function showMainContent () {
     $('.js-nav').addClass('is-shown');
     $('.js-content').addClass('is-shown');
-}
-
-function handleModalTrigger (e) {
-    hideAllModals();
-    $(`#${e.attr('data-modal')}-modal`).addClass('is-shown');
 }
 
 function hideAllModals () {
@@ -110,17 +104,52 @@ function hideAllSectionsAndDeselectButtons () {
   $('.nav-button.is-selected').removeClass('is-selected');
 }
 
-// Default to the view that was active the last time the app was open
-const sectionId = settings.get('activeSectionButtonId');
-
-if (sectionId) {
-    showMainContent();
-    const section = $(`#${sectionId}`);
-    if (section) section.click();
-} else {
-    activateDefaultSection();
+function loading(option) {
+    let _progress = document.querySelector('.progress');
+    option ? _progress.classList.add('show') : _progress.classList.remove('show');
 }
 
+
+Number.prototype.bytesFormat = function() {
+    let value;
+    if ( this === 0 ) {
+        value = '-'
+    } else if ( this < 1000) {
+        value = this + ' B'
+    } else if ( this < 1000000 ) {
+        value = (this/1000).toFixed(1) + ' K'
+    } else if ( this < 1000000000 ) {
+        value = (this/1000000).toFixed(1) + ' M'
+    } else {
+        value = (this/1000000000).toFixed(1) + ' G'
+    }
+    return value;
+};
+
+String.prototype.lastElement = function(_split) {
+    let _array = this.split(_split);
+    return _array.pop();
+}
+
+function getFileStats(file) {
+    let _stats = fs.statSync(file),
+        _details = {
+            'size': _stats.size,
+            'modified': _stats.mtime
+        };
+    return _details;
+}
+
+function getIcon(_extension) {
+    return fileExtensions[_extension] ? fileExtensions[_extension] : 'file.svg'
+}
+
+/* ------------------------------------*/
+/*** GENERAL VARIABLES
+/* ------------------------------------*/
+
+const localStorageFileSync = new EasyLocalStorage('folders-sync');
+const sectionId = settings.get('activeSectionButtonId');
 const fileExtensions = {
     'ai': 'ai.svg',
     'avi': 'avi.svg',
@@ -156,7 +185,42 @@ const fileExtensions = {
 };
 
 
-document.querySelector('#authorization').addEventListener('click', function() {
+/* ------------------------------------*/
+/*** GENERAL EVENTS
+/* ------------------------------------*/
+
+$('body').on('click', '.open-content', function() {
+
+    if ( $(this).attr('data-section') ) {
+        handleSectionTrigger($(this));
+
+    } else if ( $(this).attr('data-modal') ) {
+        handleModalTrigger($(this));
+
+    } else if ( $(this).hasClass('modal-hide') ) {
+        hideAllModals();
+    }
+
+});
+
+/* ------------------------------------*/
+/*** INIT FUNCTIONS
+/* ------------------------------------*/
+
+if (sectionId) {
+    showMainContent();
+    const section = $(`#${sectionId}`);
+    if (section) section.click();
+} else {
+    activateDefaultSection();
+}
+
+
+/* ------------------------------------*/
+/*** PAGE AUTHORIZATION
+/* ------------------------------------*/
+
+$('.authorization').on('click', function() {
     let data_line = '';
     cmd.get(rclone + ' config create gdrive drive').stdout.on(
         'data',
@@ -170,25 +234,25 @@ document.querySelector('#authorization').addEventListener('click', function() {
     );
 });
 
-document.querySelector('#authorization-status .open-browser').addEventListener('click', function(event) {
+$('.authorization-status .open-browser').on('click', function(event) {
     event.preventDefault();
     let link = event.target.href;
     require("electron").shell.openExternal(link);
 });
 
-function loading(option) {
-    let _progress = document.querySelector('.progress');
-    option ? _progress.classList.add('show') : _progress.classList.remove('show');
-};
 
-let modifiedFiles = [];
+/* ------------------------------------*/
+/*** PAGE LIVE SYNC
+/* ------------------------------------*/
 
-// Check modified files
+let modifiedFiles = [],
+    liveSyncInProgress = false;
+
 function checkSync(step) {
 
     loading(true);
 
-    let foldersSync = fS.get('parse'),
+    let foldersSync = localStorageFileSync.get('parse'),
         divContent = $('#live-sync-section .active-syncs'),
         totalSyncs = foldersSync.length;
 
@@ -308,8 +372,6 @@ function syncRowHTML(_class, directory, icon, name, date, size) {
     `;
 }
 
-let liveSyncInProgress = false;
-
 function liveSync(){
 
     checkSync();
@@ -319,7 +381,7 @@ function liveSync(){
         console.log('LiveSync START');
         liveSyncInProgress = true;
 
-        let foldersSync = fS.get('parse'),
+        let foldersSync = localStorageFileSync.get('parse'),
             totalSyncs = foldersSync.length;
 
         $.each(foldersSync, function( i, folderSync ) {
@@ -346,45 +408,27 @@ function liveSync(){
     }
 }
 
-Number.prototype.bytesFormat = function() {
-    let value;
-    if ( this === 0 ) {
-        value = '-'
-    } else if ( this < 1000) {
-        value = this + ' B'
-    } else if ( this < 1000000 ) {
-        value = (this/1000).toFixed(1) + ' K'
-    } else if ( this < 1000000000 ) {
-        value = (this/1000000).toFixed(1) + ' M'
-    } else {
-        value = (this/1000000000).toFixed(1) + ' G'
-    }
-    return value;
-};
-
-String.prototype.lastElement = function(_split) {
-    let _array = this.split(_split);
-    return _array.pop();
-}
-
-function getFileStats(file) {
-    let _stats = fs.statSync(file),
-        _details = {
-            'size': _stats.size,
-            'modified': _stats.mtime
-        };
-    return _details;
-}
-
-function getIcon(_extension) {
-    return fileExtensions[_extension] ? fileExtensions[_extension] : 'file.svg'
-}
-
-document.querySelector('#check-sync').addEventListener('click', function(event) {
+$('#check-sync').on('click', function() {
     liveSync();
 });
 
-// Open remote folder
+$('body').on('click', '.open-folder', function(){
+    let path = $(this).attr('attr-path'),
+        directory = $(this).find('.item-name').text();
+
+    if ( directory === '..' ) {
+        directory = path.split('/').slice(0, -1).join('/');
+    } else {
+        directory = path + '/' + directory;
+    }
+
+    openFolder(directory);
+});
+
+/* ------------------------------------*/
+/*** PAGE DRIVE
+/* ------------------------------------*/
+
 function openFolder(path) {
     loading(true);
     cmd.get(
@@ -431,12 +475,11 @@ function openFolder(path) {
     );
 }
 
-$('#button-select-folders').on('click', function() {
-    openLocalFolder('/');
-    openRemoteFolder('/');
-});
 
-// Open local folder
+/* ------------------------------------*/
+/*** PAGE SELECT FOLDERS
+/* ------------------------------------*/
+
 function openLocalFolder(path) {
 
     cmd.get(
@@ -476,7 +519,6 @@ function openLocalFolder(path) {
     );
 }
 
-// Open remote folder
 function openRemoteFolder (path) {
 
     loading(true);
@@ -516,19 +558,48 @@ function openRemoteFolder (path) {
     );
 }
 
-$('body').on('click', '.open-folder', function(){
-    let path = $(this).attr('attr-path'),
-        directory = $(this).find('.item-name').text();
-
-    if ( directory === '..' ) {
-        directory = path.split('/').slice(0, -1).join('/');
-    } else {
-        directory = path + '/' + directory;
+function selectedFolder(e) {
+    if ( e.hasClass('local') ) {
+        $('.selected-folders .local').html(`
+            <div class="infos">
+                <i class="material-icons icon left">computer</i>
+                <h2 class="truncate">${e.find(".item-name").text()}</h2>
+                <label class="truncate">${e.find('.open-local-folder').attr('attr-path') + '/' + e.find(".item-name").text()}</label>
+            </div>
+            <div class="direction">
+                <i class="material-icons">chevron_right</i>
+            </div>
+        `);
     }
 
-    openFolder(directory);
-});
+    if ( e.hasClass('remote') ) {
+        $('.selected-folders .remote').html(`
+            <div class="infos">
+                <i class="material-icons icon left">cloud_upload</i>
+                <h2 class="truncate">${e.find(".item-name").text()}</h2>
+                <label class="truncate">${e.find('.open-remote-folder').attr('attr-path') + '/' + e.find(".item-name").text()}</label>
+            </div>
+        `);
+    }
 
+    let _local = $('.selected-folders .local .infos'),
+    _remote = $('.selected-folders .remote .infos');
+
+    if ( _local.length > 0 && _remote.length > 0 ) {
+        let _finish = $('#folders-sync-finish');
+        _finish.prop('disabled', false);
+    }
+
+}
+
+function addFolderSync(sync) {
+    let _current = localStorageFileSync.get() !== '' ? localStorageFileSync.get('parse') : [];
+    _current.push(sync);
+    localStorageFileSync.set('parse', _current);
+    updateListSyncs();
+}
+
+!localStorageFileSync.get() ? localStorageFileSync.set(null, '') : null;
 
 $('body').on('click', '.open-local-folder', function(){
     let path = $(this).attr('attr-path'),
@@ -574,49 +645,6 @@ $('body').on('click', '.item-select', function(){
 
 });
 
-function selectedFolder(e) {
-    if ( e.hasClass('local') ) {
-        $('.selected-folders .local').html(`
-            <div class="infos">
-                <i class="material-icons icon left">computer</i>
-                <h2 class="truncate">${e.find(".item-name").text()}</h2>
-                <label class="truncate">${e.find('.open-local-folder').attr('attr-path') + '/' + e.find(".item-name").text()}</label>
-            </div>
-            <div class="direction">
-                <i class="material-icons">chevron_right</i>
-            </div>
-        `);
-    }
-
-    if ( e.hasClass('remote') ) {
-        $('.selected-folders .remote').html(`
-            <div class="infos">
-                <i class="material-icons icon left">cloud_upload</i>
-                <h2 class="truncate">${e.find(".item-name").text()}</h2>
-                <label class="truncate">${e.find('.open-remote-folder').attr('attr-path') + '/' + e.find(".item-name").text()}</label>
-            </div>
-        `);
-    }
-
-    let _local = $('.selected-folders .local .infos'),
-    _remote = $('.selected-folders .remote .infos');
-
-    if ( _local.length > 0 && _remote.length > 0 ) {
-        let _finish = $('#folders-sync-finish');
-        _finish.prop('disabled', false);
-    }
-
-}
-
-!fS.get() ? fS.set(null, '') : null;
-
-function addFolderSync(sync) {
-    let _current = fS.get() !== '' ? fS.get('parse') : [];
-    _current.push(sync);
-    fS.set('parse', _current);
-    updateListSyncs();
-}
-
 $('#folders-sync-finish').on('click', function() {
     let _local = $('.selected-folders .local .infos label'),
         _remote = $('.selected-folders .remote .infos label');
@@ -624,13 +652,19 @@ $('#folders-sync-finish').on('click', function() {
     $('[data-section="folders-sync"]').click();
 });
 
+
+
+/* ------------------------------------*/
+/*** PAGE FOLDERS SYNC
+/* ------------------------------------*/
+
 function updateListSyncs() {
 
-    if ( fS.get() !== '' ) {
+    if ( localStorageFileSync.get() !== '' ) {
 
-        document.querySelector('#list-syncs ul').innerHTML = '';
+        $('#list-syncs ul').html('');
 
-        fS.get('parse').forEach( function(e, i) {
+        localStorageFileSync.get('parse').forEach( function(e, i) {
 
             $('#list-syncs ul').append(`
                 <li>
@@ -671,20 +705,20 @@ function updateListSyncs() {
 
     }
     else {
-        document.querySelector('#list-syncs').innerHTML = '<li>Nenhuma pasta e sincronia</li>';
+        $('#list-syncs').html('<li>Nenhuma pasta e sincronia</li>');
     }
 }
 
 function updateStatusSync(item, status) {
-    let syncs = fS.get('parse');
+    let syncs = localStorageFileSync.get('parse');
     syncs[item].status = status;
-    fS.set('parse', syncs);
+    localStorageFileSync.set('parse', syncs);
 }
 
 function deleteSync(item) {
-    let syncs = fS.get('parse');
+    let syncs = localStorageFileSync.get('parse');
     syncs.splice(item, 1);
-    fS.set('parse', syncs);
+    localStorageFileSync.set('parse', syncs);
 }
 
 function pauseSync(item) {
@@ -694,6 +728,11 @@ function pauseSync(item) {
 function playSync(item) {
     updateStatusSync(item, true);
 }
+
+$('#button-select-folders').on('click', function() {
+    openLocalFolder('/');
+    openRemoteFolder('/');
+});
 
 $('#list-syncs').on('click', '.play-or-pause', function() {
     $(this).toggleClass('playing');
@@ -725,18 +764,19 @@ $('#list-syncs').on('click', '.delete', function() {
 //     }
 // );
 
-/* ----------------------------------------------*/
+/* ------------------------------------*/
 /*** INIT MODALS  */
-/* ----------------------------------------------*/
+/* ------------------------------------*/
 
 document.addEventListener('DOMContentLoaded', function() {
     let elems = document.querySelectorAll('.modal');
     let instances = M.Modal.init(elems);
 });
 
-/* ----------------------------------------------*/
+
+/* ------------------------------------*/
 /*** TITLE BAR  */
-/* ----------------------------------------------*/
+/* ------------------------------------*/
 
 // Minimize task
 $(".titlebar .titlebar-minimize").on("click", (e) => {
@@ -763,9 +803,9 @@ $(".titlebar .titlebar-close").on("click", (e) => {
 });
 
 
-/* ----------------------------------------------*/
+/* ------------------------------------*/
 /*** LOCATIION i18n  */
-/* ----------------------------------------------*/
+/* ------------------------------------*/
 
 i18next.init({
     lng: 'br',
@@ -783,7 +823,9 @@ i18next.init({
                     "folders-sync": "Pastas Sincronizadas",
                     "settings": "Configurações",
                     "authentication": "Autenticação",
-                    "new-sync": "Nova Sincronia"
+                    "new-sync": "Nova Sincronia",
+                    "back": "Voltar",
+                    "finish": "Finalizar"
                 }
             }
     }
@@ -795,3 +837,12 @@ i18next.init({
         $(this).html(label);
     });
 });
+
+
+/* ------------------------------------*/
+/*** SPLASH SCREEN
+/* ------------------------------------*/
+
+setTimeout(function(){ 
+    $('#splash-screen-modal').removeClass('is-shown');
+}, 2000);
