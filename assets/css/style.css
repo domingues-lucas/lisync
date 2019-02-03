@@ -282,22 +282,49 @@ footer .btn-large {
 /* ------------------------------------*/
 .rotation {
   -webkit-animation: rotation 2s infinite linear;
+          animation: rotation 2s infinite linear;
 }
 
 @-webkit-keyframes rotation {
   from {
     -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
   }
   to {
     -webkit-transform: rotate(359deg);
+            transform: rotate(359deg);
+  }
+}
+
+@keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(359deg);
+            transform: rotate(359deg);
   }
 }
 
 .blink {
   -webkit-animation: blink 1s infinite;
+          animation: blink 1s infinite;
 }
 
 @-webkit-keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes blink {
   0% {
     opacity: 1;
   }
@@ -460,6 +487,10 @@ footer .btn-large {
   transition: all 0.5s;
 }
 
+.list-files .directory li .actions {
+  padding-top: 8px;
+}
+
 .list-files .directory li .actions a {
   color: #4787f3;
 }
@@ -500,28 +531,32 @@ footer .btn-large {
 }
 
 .list-files.two-lines .icon {
-  width: 25px;
+  width: 20px;
+  margin: 10px 22px 0 12px;
 }
 
 .list-files.two-lines .icon.material-icons {
-  margin-top: -3px;
-  margin-right: 12px;
-  font-size: 25px;
+  font-size: 20px;
 }
 
 .list-files.two-lines .modified,
 .list-files.two-lines .size {
-  margin-top: 6px;
+  margin-top: 12px;
+}
+
+.list-files.two-lines .status {
+  margin-top: 8px;
 }
 
 .list-files.two-lines .directory li {
   overflow: hidden;
   opacity: 1;
-  height: 50px;
+  height: 64px;
 }
 
-.list-files.two-lines .directory li .item-name {
-  margin-top: -2px;
+.list-files.two-lines .directory li .item-name .directory {
+  margin-top: 6px;
+  font-size: 11px;
 }
 
 .list-files.two-lines .directory li.deleted {
@@ -535,8 +570,7 @@ footer .btn-large {
 /* ------------------------------------*/
 /*** WELCOME
 /* ------------------------------------*/
-/* Welcome ------------------------ */
-.modal {
+.modal-fullscreen {
   width: 100%;
   height: 100vh;
   max-height: none;
@@ -563,7 +597,7 @@ footer .btn-large {
   transition: visibility 0s 0s linear , opacity .24s ease-out, transform .24s ease-out , -webkit-transform .24s ease-out;
 }
 
-.modal.is-shown {
+.modal-fullscreen.is-shown {
   pointer-events: auto;
   visibility: visible;
   opacity: 1;
@@ -575,7 +609,7 @@ footer .btn-large {
   transition: visibility 0s 0s linear , opacity .24s ease-out, transform .24s ease-out , -webkit-transform .24s ease-out;
 }
 
-.modal.is-shown .modal-wrapper {
+.modal-fullscreen.is-shown .modal-wrapper {
   -webkit-transform: scale(1);
           transform: scale(1);
   -webkit-transition: visibility 0s 0s linear , opacity .24s ease-out, -webkit-transform .24s ease-out;
@@ -700,6 +734,16 @@ footer .btn-large {
   color: #60dd4d;
 }
 
+.live-sync footer .upload {
+  padding-top: 10px;
+  float: left;
+  width: calc(100% - 200px);
+}
+
+.live-sync footer .upload p {
+  margin: 0 16px;
+}
+
 /* ------------------------------------*/
 /*** SPLASH SCREEN
 /* ------------------------------------*/
@@ -711,12 +755,16 @@ footer .btn-large {
   width: 100%;
 }
 
+.splash-screen .splash-screen-wrapper main {
+  margin: 0 auto;
+  padding-bottom: 100px;
+}
+
 .splash-screen .logo {
   width: 400px;
   display: block;
   margin: 0 auto;
   margin-bottom: 30px;
-  margin-top: 70px;
 }
 
 #circleG {

@@ -129,7 +129,7 @@ Number.prototype.bytesFormat = function() {
 String.prototype.lastElement = function(_split) {
     let _array = this.split(_split);
     return _array.pop();
-}
+};
 
 function getFileStats(file) {
     let _stats = fs.statSync(file),
@@ -141,8 +141,17 @@ function getFileStats(file) {
 }
 
 function getIcon(_extension) {
-    return fileExtensions[_extension] ? fileExtensions[_extension] : 'file.svg'
+    return fileExtensions[_extension] ? fileExtensions[_extension] : 'file.svg';
 }
+
+String.prototype.replaceAll = function(a, b) {
+    return this.split(a).join(b);
+};
+
+String.prototype.escapeQuotes = function(a) {
+    return this.replaceAll('"', '\\"')
+               .replaceAll('`', '\\`');
+};
 
 /* ------------------------------------*/
 /*** GENERAL VARIABLES
@@ -316,7 +325,7 @@ function checkSync(step) {
 
                             let extension = e.lastElement('.'),
                                 icon = getIcon(extension),
-                                stats = getFileStats(folderSync.local, e),
+                                stats = getFileStats(e),
                                 name = e.lastElement('/');
 
                             divContent.prepend(syncRowHTML('remove', folderSync.local, icon, name, stats.modified, stats.size));
@@ -329,16 +338,18 @@ function checkSync(step) {
                     item = divContent.find('li');
                     let modify_icon = '';
 
-                    modifiedFiles[i].forEach( function(e, i) {
-                        if ( _modifiedFiles.indexOf(e) === -1) {
-                            modify_icon = item[i + items_add].find('.status .material-icons');
-                            modify_icon.removeClass('blink');
-                            modify_icon.addClass('done');
-                            modify_icon.text('cloud_done');
-                        }
-                    });
+                    if ( modifiedFiles[i] ) {
+                        modifiedFiles[i].forEach( function(e, i) {
+                            if ( _modifiedFiles.indexOf(e) === -1) {
+                                modify_icon = item.eq(i + items_add).find('.status .material-icons');
+                                modify_icon.removeClass('blink');
+                                modify_icon.addClass('done');
+                                modify_icon.text('cloud_done');
+                            }
+                        });
 
-                    modifiedFiles[i] = _modifiedFiles;
+                        modifiedFiles[i] = _modifiedFiles;
+                    }
 
                     totalSyncs === i + 1 ? loading(false) : null;
 
@@ -372,7 +383,9 @@ function syncRowHTML(_class, directory, icon, name, date, size) {
     `;
 }
 
-function liveSync(){
+function liveSync(i){
+
+    i = i || 0;
 
     checkSync();
 
@@ -382,31 +395,51 @@ function liveSync(){
         liveSyncInProgress = true;
 
         let foldersSync = localStorageFileSync.get('parse'),
-            totalSyncs = foldersSync.length;
+            totalSyncs = foldersSync.length,
+            folderSync;
 
-        $.each(foldersSync, function( i, folderSync ) {
+        if ( totalSyncs > 0 ) {
+
+            folderSync = foldersSync[i];
 
             if ( folderSync.status ) {
 
                 // Desabilitado para evitar upload incorreto durante desenvolvimento
 
-                // let processRef = cmd.get(`${rclone} sync --progress "${folderSync.local}" "gdrive:${folderSync.remote}"`, function(){
-                //     if ( totalSyncs === i + 1 ) {
-                //         liveSyncInProgress = false;
-                //         checkSync();
-                //         console.log("LiveSync END");
-                //     }
-                // });
+                let processRef = cmd.get(`${rclone} sync --progress "${folderSync.local}" "gdrive:${folderSync.remote}"`, function(){
+                    liveSyncInProgress = false;
+                    if ( totalSyncs === i + 1 ) {
+                        console.log("LiveSync END");
+                        checkSync();
+                    } else {
+                        console.log('MAIS UM');
+                        liveSync(i + 1);
+                    }
+                });
 
-                // processRef.stdout.on(
-                //     'data',
-                //     function(data) {
-                //         console.log(data)
-                //     }
-                // );
+                processRef.stdout.on(
+                    'data',
+                    function(data) {
 
+                        data = data.split('\n');
+
+                        let current = data[3] ? parseInt(data[3].split(': ')[1].split(' /')[0].trim()) : '',
+                            total = data[3] ? parseInt(data[3].split(': ')[1].split(' /')[1].split(',')[0].trim()) : '',
+                            transferring = data[6] ? data[6].split('* ')[1].trim() : '';
+
+                        if ( total > 0 && current < total ) {
+                            $('.live-sync footer .upload').html(`
+                                <p><b>Transferindo ${current + 1 } de ${total} arquivo(s)</b></p>
+                                <p>${transferring}</p>
+                            `);
+                        } else {
+                            $('.live-sync footer .upload').html('');
+                        }
+
+                    }
+                );
             }
-        });
+        }
     }
 }
 
@@ -441,29 +474,32 @@ function openFolder(path) {
                     </li>
                 `);
             }
+            
+            if (data) {
+                JSON.parse(data).forEach(e => {
 
-            JSON.parse(data).forEach(e => {
+                    e.Size = e.Size === -1 ? '0' : e.Size;
+                    e.ModTime = moment(e.ModTime).format('YYYY-MM-DD hh:mm:ss');
+                    e.Extension = e.Name.split('.').slice(-1)[0];
 
-                e.Size = e.Size === -1 ? '0' : e.Size;
-                e.ModTime = moment(e.ModTime).format('YYYY-MM-DD hh:mm:ss');
-                e.Extension = e.Name.split('.').slice(-1)[0];
+                    e.IsDir ? ( e.Icon = 'folder.svg', e.Tag = 'a class="open-folder"' ) : ( e.Tag = 'div', fileExtensions[e.Extension] ? e.Icon = fileExtensions[e.Extension] : e.Icon = 'file.svg' );
 
-                e.IsDir ? ( e.Icon = 'folder.svg', e.Tag = 'a class="open-folder"' ) : ( e.Tag = 'div', fileExtensions[e.Extension] ? e.Icon = fileExtensions[e.Extension] : e.Icon = 'file.svg' );
+                    $('#remote').append(`
+                        <li class="remote">
+                            <div class="name truncate">
+                                <${e.Tag} attr-path="${path}">
+                                    <img class="icon" src="./assets/icons/${e.Icon}">
+                                    <span class="item-name">${e.Name}</span>
+                                </${e.Tag}>
+                            </div>
+                            <div class="modified">${e.ModTime}</div>
+                            <div class="size truncate">${parseFloat(e.Size).bytesFormat()}</div>
+                        </li>
+                    `);
 
-                $('#remote').append(`
-                    <li class="remote">
-                        <div class="name truncate">
-                            <${e.Tag} attr-path="${path}">
-                                <img class="icon" src="./assets/icons/${e.Icon}">
-                                <span class="item-name">${e.Name}</span>
-                            </${e.Tag}>
-                        </div>
-                        <div class="modified">${e.ModTime}</div>
-                        <div class="size truncate">${parseFloat(e.Size).bytesFormat()}</div>
-                    </li>
-                `);
+                });
+            }
 
-            });
             loading(false);
         }
     );
@@ -481,7 +517,7 @@ $('body').on('click', '.open-folder', function(){
 function openLocalFolder(path) {
 
     cmd.get(
-        'cd ' + path + ' && ls -d */',
+        'cd "' + path.escapeQuotes() + '" && ls -d */',
         function(err, data, stderr){
 
             $('.local.list-files .directory').html('');
@@ -543,28 +579,29 @@ function openRemoteFolder (path) {
                 `);
             }
 
-            JSON.parse(data).forEach(e => {
-                if ( e.IsDir ){
-                    $('.remote.list-files .directory').append(`
-                        <li class="item-select remote unique">
-                            <div class="name truncate">
-                                <a class="open-remote-folder" attr-path="${path}">
-                                    <img class="icon" src="./assets/icons/folder.svg">
-                                    <span class="item-name">${e.Name}</span>
-                                </a>
-                            </div>
-                        </li>
-                    `);
-                }
-            });
+            if (data) {
+                JSON.parse(data).forEach(e => {
+                    if ( e.IsDir ){
+                        $('.remote.list-files .directory').append(`
+                            <li class="item-select remote unique">
+                                <div class="name truncate">
+                                    <a class="open-remote-folder" attr-path="${path}">
+                                        <img class="icon" src="./assets/icons/folder.svg">
+                                        <span class="item-name">${e.Name}</span>
+                                    </a>
+                                </div>
+                            </li>
+                        `);
+                    }
+                });
+            }
+
             loading(false);
         }
     );
 }
 
 function selectedFolder(path, source) {
-
-    console.log(path);
 
     let name = path.split('/').pop();
 
@@ -608,6 +645,36 @@ function addFolderSync(sync) {
     updateListSyncs();
 }
 
+function emptyFolder(path) {
+    loading(true);
+    cmd.get(
+        rclone + ' lsjson --fast-list gdrive:/' + path,
+        function(err, data, stderr){
+            if (data) {
+                let instance = M.Modal.getInstance(document.querySelector('.empty-folder'));
+                instance.open();
+            } else {
+                finishSyncFolder(true);
+            }
+            loading(false);
+        }
+    );
+}
+
+function finishSyncFolder(verified) {
+
+    let _local = $('.selected-folders .local .infos label'),
+        _remote = $('.selected-folders .remote .infos label');
+
+    if (verified) {
+        addFolderSync({ "local": _local.text(), "remote": _remote.text(), "status": true });
+        $('[data-section="folders-sync"]').click();
+    } else {
+        emptyFolder(_remote.text());
+    }
+
+}
+
 !localStorageFileSync.get() ? localStorageFileSync.set(null, '') : null;
 
 $('body').on('click', '.open-local-folder', function(event){
@@ -627,7 +694,7 @@ $('body').on('click', '.open-remote-folder', function(event){
 
 $('body').on('click', '.item-select', function(){
 
-    let path = $(this).find('.open-local-folder').attr('attr-path') + '/' + $(this).find(".item-name").text(),
+    let path = $(this).find('.open-local-folder, .open-remote-folder').attr('attr-path') + '/' + $(this).find(".item-name").text(),
         source = $(this).hasClass('local') ? 'local' : 'remote';
 
     if ( !event.target.classList.contains('icon') && !event.target.classList.contains('item-name') ) {
@@ -644,12 +711,23 @@ $('body').on('click', '.item-select', function(){
 });
 
 $('#folders-sync-finish').on('click', function() {
-    let _local = $('.selected-folders .local .infos label'),
-        _remote = $('.selected-folders .remote .infos label');
-    addFolderSync({ "local": _local.text(), "remote": _remote.text(), "status": true });
-    $('[data-section="folders-sync"]').click();
+    finishSyncFolder();
 });
 
+$('.empty-folder').on('click', '.check-confirm', function(){
+    let check = $('.empty-folder .check-confirm').prop('checked'),
+        confirm = $('.empty-folder .confirm');
+
+    if ( check ) {
+        confirm.prop('disabled', false);
+    } else {
+        confirm.prop('disabled', true);
+    }
+});
+
+$('.empty-folder').on('click', '.confirm', function(){
+    finishSyncFolder(true);
+});
 
 
 /* ------------------------------------*/
@@ -843,6 +921,10 @@ i18next.init({
 
 setTimeout(function(){ 
     $('#splash-screen-modal').removeClass('is-shown');
-    let window = BrowserWindow.getFocusedWindow();
-    window.maximize();
+
+    try {
+        let window = BrowserWindow.getFocusedWindow();
+        window.maximize();
+    } catch {}
+
 }, 2000);

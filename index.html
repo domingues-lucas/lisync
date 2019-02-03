@@ -93,6 +93,25 @@
         </div>
     </div>
 
+    <!-- Modal Structure -->
+    <div class="modal empty-folder">
+        <div class="modal-content">
+            <h4>Cuidado!</h4>
+            <p>A pasta de destino no Google Drive já contém arquivos. Todos arquivos que não estão em sua pasta local, mas estão no Google Drive, serão perdidos.</p>
+            <p>Deseja continuar assim mesmo ?</p>
+            <p>
+                <label>
+                    <input type="checkbox" class="check-confirm">
+                    <span>Estou ciente que está operação pode ocasionar perca de arquivos em meu Google Drive</span>
+                </label>
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-close waves-effect waves-green btn-flat">Não</button>
+            <button class="modal-close waves-effect waves-green btn-flat confirm" disabled>Sim</button>
+        </div>
+    </div>
+
     <script>
         require('./renderer-process/renderer');
     </script>

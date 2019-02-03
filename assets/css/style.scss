@@ -219,23 +219,23 @@ footer {
 /* ------------------------------------*/
 
 .rotation {
-    -webkit-animation: rotation 2s infinite linear;
+    animation: rotation 2s infinite linear;
 }
 
-@-webkit-keyframes rotation {
+@keyframes rotation {
     from {
-        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
     }
     to {
-        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
     }
 }
 
 .blink {
-    -webkit-animation: blink 1s infinite;
+    animation: blink 1s infinite;
 }
 
-@-webkit-keyframes blink {
+@keyframes blink {
     0%   {opacity: 1;}
     50%  {opacity: 0.1;}
     100% {opacity: 1;}
@@ -404,6 +404,7 @@ footer {
             }
 
             .actions {
+                padding-top: 8px;
 
                 a {
                     color: $blue;
@@ -455,18 +456,21 @@ footer {
     &.two-lines {
 
         .icon {
-            width: 25px;
+            width: 20px;
+            margin: 10px 22px 0 12px;
 
             &.material-icons {
-                margin-top: -3px;
-                margin-right: 12px;
-                font-size: 25px;
+                font-size: 20px;
             }
         }
 
         .modified,
         .size {
-            margin-top: 6px;
+            margin-top: 12px;
+        }
+
+        .status {
+            margin-top: 8px;
         }
 
         .directory {
@@ -474,10 +478,14 @@ footer {
             li {
                 overflow: hidden;
                 opacity: 1;
-                height: 50px;
+                height: 64px;
 
                 .item-name {
-                    margin-top: -2px;
+
+                    .directory {
+                        margin-top: 6px;
+                        font-size: 11px;
+                    }
                 }
 
                 &.deleted {
@@ -496,9 +504,7 @@ footer {
 /*** WELCOME
 /* ------------------------------------*/
 
-/* Welcome ------------------------ */
-
-.modal {
+.modal-fullscreen {
     width: 100%;
     height: 100vh;
     max-height: none;
@@ -520,7 +526,7 @@ footer {
     transition: visibility 0s 0s linear , opacity .24s ease-out, transform .24s ease-out;
 }
 
-.modal.is-shown {
+.modal-fullscreen.is-shown {
     pointer-events: auto;
     visibility: visible;
     opacity: 1;
@@ -528,7 +534,7 @@ footer {
     transition: visibility 0s 0s linear , opacity .24s ease-out, transform .24s ease-out;
 }
 
-.modal.is-shown .modal-wrapper {
+.modal-fullscreen.is-shown .modal-wrapper {
     transform: scale(1);
     transition: visibility 0s 0s linear , opacity .24s ease-out, transform .24s ease-out;
 }
@@ -654,6 +660,19 @@ footer {
                 color: $green;
             }
         }
+    }
+
+    footer {
+
+        .upload {
+            padding-top: 10px;
+            float: left;
+            width: calc(100% - 200px);
+
+            p {
+                margin: 0 16px;
+            }
+        }
 
     }
 }
@@ -667,6 +686,11 @@ footer {
 
     .splash-screen-wrapper {
         width: 100%;
+
+        main {
+            margin: 0 auto;
+            padding-bottom: 100px;
+        }
     }
 
     .logo {
@@ -674,7 +698,6 @@ footer {
         display: block;
         margin: 0 auto;
         margin-bottom: 30px;
-        margin-top: 70px;
     }
 }
 
