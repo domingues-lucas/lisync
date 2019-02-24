@@ -12,7 +12,6 @@
   overflow-x: hidden;
   overflow-y: auto;
   background-color: #f5f5f5;
-  padding-top: 6px;
   visibility: hidden;
   opacity: 0;
   -webkit-box-shadow: none;
@@ -176,6 +175,13 @@ footer .btn-large {
   margin: 12px 0 0 18px;
 }
 
+.materialize-section {
+  position: relative;
+  visibility: visible;
+  opacity: 1;
+  margin-left: 21px;
+}
+
 /* ----------------------------*/
 /*** TITLE BAR https://github.com/sidneys/electron-titlebar-windows
 /* ----------------------------*/
@@ -275,6 +281,17 @@ footer .btn-large {
 
 .titlebar-close:hover svg polygon {
   fill: white;
+}
+
+.titlebar {
+  text-align: center;
+  color: #fff;
+  line-height: 32px;
+}
+
+.titlebar .logo {
+  float: left;
+  margin: 4px 16px 0 12px;
 }
 
 /* ------------------------------------*/
@@ -633,32 +650,34 @@ footer .btn-large {
   padding: 12px;
 }
 
-.authorization header {
-  padding-top: 90px;
-  text-align: center;
+/* ------------------------------------*/
+/*** SETTINGS
+/* ------------------------------------*/
+.settings {
+  padding: 0 16px;
 }
 
-.authorization header img {
-  margin-bottom: 30px;
-  width: 128px;
+.settings p {
+  font-size: 14px;
+  color: #434343;
 }
 
-.authorization header,
-.authorization main {
-  margin: 0 auto;
-  width: 400px;
+.settings .authentication .actions {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 
-.authorization .button-connect {
-  padding: 30px;
-  text-align: center;
+.settings .authentication H6 .material-icons {
+  font-size: 19px;
+  color: #1ea362;
 }
 
-.authorization footer {
-  position: absolute;
-  width: 100%;
-  bottom: 0;
-  left: 0;
+.settings .google-connect {
+  padding: 16px 0;
+}
+
+.settings .google-connect .logo {
+  width: 50px;
 }
 
 /*-------------------------------------*/
@@ -742,6 +761,23 @@ footer .btn-large {
 
 .live-sync footer .upload p {
   margin: 0 16px;
+}
+
+/* ------------------------------------*/
+/*** ABOUT
+/* ------------------------------------*/
+.about {
+  padding-top: 60px;
+  text-align: center;
+}
+
+.about .lisync {
+  max-width: 400px;
+}
+
+.about .others {
+  max-width: 100px;
+  margin: 12px;
 }
 
 /* ------------------------------------*/

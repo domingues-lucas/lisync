@@ -1,7 +1,51 @@
 <template class="task-template">
-    <section id="settings-section" class="section js-section">
-        <header class="section-header">
-            <h1>Settings</h1>
-        </header>
+    <section id="settings-section" class="section js-section settings">
+
+        <div class="language">
+            <div class="row">
+                <div class="col s12">
+                    <div class="section materialize-section">
+                        <h5>
+                            <i class="material-icons left">language</i>
+                            <span data-i18n="language"></span>
+                        </h5>
+                    </div>
+                    <div class="divider"></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="input-field col s9">
+                    <p><span data-i18n="choose-language"></span></p>
+                </div>
+                <div class="input-field col s3">
+                    <select>
+                        <option value="en-us">Português do Brasil</option>
+                        <option value="pt-br">English</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    
+        <div class="authentication">
+            <div class="row">
+                <div class="col s12">
+                    <div class="section materialize-section">
+                        <h5>
+                            <i class="material-icons left">account_circle</i>
+                            <span data-i18n="authentication"></span>
+                        </h5>
+                    </div>
+                    <div class="divider"></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col s12">
+                    <div class="status"></div>
+                </div>
+            </div>
+        </div>
+
     </section>
 </template>

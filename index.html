@@ -13,7 +13,7 @@
     <link rel="import" href="sections/folders-sync.html">
     <link rel="import" href="sections/select-folders.html">
     <link rel="import" href="sections/settings.html">
-    <link rel="import" href="sections/authentication.html" data-window="modal">
+    <link rel="import" href="sections/about.html">
     <link rel="import" href="sections/splash-screen.html" data-window="modal">
     
 </head>
@@ -27,6 +27,10 @@
 
         <div class="window">
             <div class="titlebar draggable">
+
+                <img class="logo"src="./assets/app-icon/png/24.png">
+                Lisync
+
                 <div class="titlebar-controls">
                     <div class="titlebar-minimize">
                         <svg x="0px" y="0px" viewBox="0 0 10 1">
@@ -58,9 +62,9 @@
         <div class="row no-margin">
             <div class="col s3 no-padding">
                 <nav class="nav js-nav">
-                    <h1>
+                    <!-- <h1>
                         <img src="./assets/app-icon/png/lisync-logo.png">
-                    </h1>
+                    </h1> -->
                     <button id="button-live-sync" class="waves-effect waves-light nav-button open-content" data-section="live-sync">
                         <i class="material-icons left">sync</i>
                         <span data-i18n="live-sync"></span>
@@ -77,14 +81,10 @@
                         <i class="material-icons left">settings</i>
                         <span data-i18n="settings"></span>
                     </button>
-                    <button id="button-welcome" class="waves-effect waves-light nav-button open-content" data-modal="welcome">
-                        <i class="material-icons left">account_circle</i>
-                        <span data-i18n="authentication"></span>
+                    <button id="button-settings" class="waves-effect waves-light nav-button open-content" data-section="about">
+                        <i class="material-icons left">help</i>
+                        <span data-i18n="about"></span>
                     </button>
-                    <!-- <button id="button-splash-screen" class="waves-effect waves-light nav-button open-content" data-modal="splash-screen">
-                        <i class="material-icons left">account_circle</i>
-                        Splash Screen
-                    </button> -->
                 </nav>
             </div>
             <div class="col s9 no-padding">

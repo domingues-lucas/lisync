@@ -98,6 +98,13 @@ footer {
 
 }
 
+.materialize-section {
+    position: relative;
+    visibility: visible;
+    opacity: 1;
+    margin-left: 21px;
+}
+
 
 /* ----------------------------*/
 /*** TITLE BAR https://github.com/sidneys/electron-titlebar-windows
@@ -211,6 +218,18 @@ footer {
 
 .titlebar-close:hover svg polygon {
     fill: rgba(255, 255, 255, 1);
+}
+
+.titlebar {
+    text-align: center;
+    color: #fff;
+    line-height: 32px;
+
+    .logo {
+        float: left;
+        margin: 4px 16px 0 12px;
+    }
+
 }
 
 
@@ -549,35 +568,46 @@ footer {
 .authorization {
     padding: 12px;
 
-    header {
-        padding-top: 90px;
-        text-align: center;
+    
+}
 
-        img {
-            margin-bottom: 30px;
-            width: 128px;
+/* ------------------------------------*/
+/*** SETTINGS
+/* ------------------------------------*/
+
+.settings {
+    padding: 0 16px;
+
+    p {
+        font-size: 14px;
+        color: $gray;
+    }
+
+    .authentication {
+
+        .actions {
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        H6 {
+
+            .material-icons {
+                font-size: 19px;
+                color: $green-gdrive;
+            }
         }
     }
 
-    header,
-    main {
-        margin: 0 auto;
-        width: 400px;
+    .google-connect {
+        padding: 16px 0;
+
+        .logo {
+            width: 50px;
+        }
     }
 
-    .button-connect {
-        padding: 30px;
-        text-align: center;
-    }
-
-    footer {
-        position: absolute;
-        width: 100%;
-        bottom: 0;
-        left: 0;
-    }
 }
-
 
 /*-------------------------------------*/
 /*** SELECT FOLDERS
@@ -673,7 +703,25 @@ footer {
                 margin: 0 16px;
             }
         }
+        
+    }
+}
 
+/* ------------------------------------*/
+/*** ABOUT
+/* ------------------------------------*/
+
+.about {
+    padding-top: 60px;
+    text-align: center;
+    
+    .lisync {
+        max-width: 400px;
+    }
+
+    .others {
+        max-width: 100px;
+        margin: 12px;
     }
 }
 

@@ -4,18 +4,21 @@
 /*** IMPORTS
 /* ------------------------------------*/
 
+const electron = require('electron');
+const BrowserWindow = electron.remote.BrowserWindow;
+const settings = require('electron-settings');
+
 const i18next = require('i18next');
 const cmd = require('node-cmd');
 const materialize = require('materialize-css');
 const moment = require('moment');
-const shell = require('electron');
-const {BrowserWindow} = shell.remote;
 const os = require('os');
 const fs = require('fs');
-const settings = require('electron-settings');
-const links = document.querySelectorAll('link[rel="import"]');
-const rclone = process.platform === 'darwin' ? 'rclone/mac/rclone' : process.platform === 'win32' ? 'rclone/win/rclone' : 'rclone/linux/rclone';
 const $ = require('jquery');
+
+const links = document.querySelectorAll('link[rel="import"]');
+const rclone = process.platform === 'darwin' ? '"rclone/mac/rclone"' : process.platform === 'win32' ? '"rclone/win/rclone"' : '"rclone/linux/rclone"';
+
 
 // Import and add each page to the DOM
 Array.prototype.forEach.call(links, (link) => {
@@ -72,6 +75,9 @@ function handleSectionTrigger (e) {
     } else if (section === 'select-folders') {
         openLocalFolder('/');
         openRemoteFolder('/');
+
+    } else if (section === 'settings') {
+        getGDriveStatus();
     }
 
     e.addClass('is-selected');
@@ -115,13 +121,13 @@ Number.prototype.bytesFormat = function() {
     if ( this === 0 ) {
         value = '-'
     } else if ( this < 1000) {
-        value = this + ' B'
+        value = this + 'B'
     } else if ( this < 1000000 ) {
-        value = (this/1000).toFixed(1) + ' K'
+        value = (this/1000).toFixed(1) + 'K'
     } else if ( this < 1000000000 ) {
-        value = (this/1000000).toFixed(1) + ' M'
+        value = (this/1000000).toFixed(1) + 'M'
     } else {
-        value = (this/1000000000).toFixed(1) + ' G'
+        value = (this/1000000000).toFixed(1) + 'G'
     }
     return value;
 };
@@ -153,6 +159,7 @@ String.prototype.escapeQuotes = function(a) {
                .replaceAll('`', '\\`');
 };
 
+
 /* ------------------------------------*/
 /*** GENERAL VARIABLES
 /* ------------------------------------*/
@@ -183,7 +190,7 @@ const fileExtensions = {
     'png': 'png.svg',
     'ppt': 'ppt.svg',
     'pptx': 'ppt.svg',
-    'pst': 'pst.svg',
+    'psd': 'psd.svg',
     'rtf': 'rtf.svg',
     'svg': 'svg.svg',
     'txt': 'txt.svg',
@@ -212,10 +219,18 @@ $('body').on('click', '.open-content', function() {
 
 });
 
+$('body').on('click', '.open-browser', function() {
+    event.preventDefault();
+    let url = event.target.href;
+    electron.shell.openExternal(url);
+});
+
 /* ------------------------------------*/
 /*** INIT FUNCTIONS
 /* ------------------------------------*/
 
+
+// Sections
 if (sectionId) {
     showMainContent();
     const section = $(`#${sectionId}`);
@@ -224,31 +239,142 @@ if (sectionId) {
     activateDefaultSection();
 }
 
+// Materialize
+document.addEventListener('DOMContentLoaded', function() {
+    M.Modal.init(document.querySelectorAll('.modal'));
+    M.FormSelect.init(document.querySelectorAll('select'));
+});
+
 
 /* ------------------------------------*/
-/*** PAGE AUTHORIZATION
+/*** SETTINGS
 /* ------------------------------------*/
 
-$('.authorization').on('click', function() {
-    let data_line = '';
-    cmd.get(rclone + ' config create gdrive drive').stdout.on(
+$('body').on('click', '#settings-section .authentication .connect', function() {
+    let data_line = '',
+        process = cmd.get(rclone + ' config create gdrive drive');
+
+    process.stdout.on(
         'data',
         function(data) {
             data_line += data;
+            console.log(data);
             if (data_line[data_line.length-1] == '\n') {
-                console.log(data_line);
-                // document.querySelector('#authorization-status').innerHTML += data_line;
+                $('#settings-section .authentication .message').html(`
+                    <blockquote>
+                        <p>Se o navegador não abrir automaticamente, acesse pelo link abaixo:</p>
+                        <a class="open-browser" href="http://127.0.0.1:53682/auth">http://127.0.0.1:53682/auth</a>
+                    </blockquote>
+                `);
             };
         }
     );
+
+    process.on(
+        'exit', function() {
+            getGDriveStatus();
+        }
+    );
+
 });
 
-$('.authorization-status .open-browser').on('click', function(event) {
-    event.preventDefault();
-    let link = event.target.href;
-    require("electron").shell.openExternal(link);
+
+$('body').on('click', '#settings-section .authentication .disconnect', function() {
+    cmd.get(rclone + ' config delete gdrive', function() {
+        getGDriveStatus();
+    });
 });
 
+function getGDriveStatus() {
+    console.log(rclone + ' listremotes')
+    cmd.get(
+        rclone + ' listremotes',
+        function(err, data, stderr){
+            console.log(data)
+            if (data) {
+                aboutGDrive();
+                console.log("Conected!")
+            } else {
+                $('#settings-section .authentication .status').html(`
+                    <div class="google-connect">
+                        <div class="row">
+                            <div class="col s1">
+                                <img class="logo" src="./assets/img/google-drive.png">
+                            </div>
+                            <div class="col s8">
+                                <p>Conectar-se com o Google Drive</p>
+                            </div>
+                            <div class="col s3">
+                                <button class="waves-effect waves-light btn-large right connect">
+                                    <i class="material-icons left">cloud_queue</i>Conectar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col s12">
+                                <section class="message"></section>
+                            </div>
+                        </div>
+                    </div>
+                `);
+            }
+        }
+    );
+}
+
+function aboutGDrive() {
+    loading(true);
+    cmd.get(
+        rclone + ' about gdrive: --json',
+        function(err, data, stderr){
+            loading(false);
+            let about = JSON.parse(data);
+
+            $('#settings-section .authentication .status').html(`
+
+                <div class="row">
+                    <div class="col s12">
+                        <div class="section materialize-section">
+                            <h6><i class="material-icons left">check_circle_outline</i>Você está conectado ao Google Drive!</h6>
+                        </div>
+                        <div class="divider"></div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col s12">
+                        <table class="striped">
+                            <tbody>
+                                <tr>
+                                    <td><b>Total</b></td><td>${about.total.bytesFormat()}</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Used</b></td><td>${about.used.bytesFormat()}</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Trashed</b></td><td>${about.trashed.bytesFormat()}</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Other</b></td><td>${about.other.bytesFormat()}</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Free</b></td><td>${about.free.bytesFormat()}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col s12 actions">
+                        <button class="waves-effect waves-light btn disconnect right"><i class="material-icons left">close</i>Desconectar</button>
+                    </div>
+                </div>
+            `);
+
+        }
+    );
+}
 
 /* ------------------------------------*/
 /*** PAGE LIVE SYNC
@@ -840,22 +966,13 @@ $('#list-syncs').on('click', '.delete', function() {
 //     }
 // );
 
-/* ------------------------------------*/
-/*** INIT MODALS  */
-/* ------------------------------------*/
-
-document.addEventListener('DOMContentLoaded', function() {
-    let elems = document.querySelectorAll('.modal');
-    let instances = M.Modal.init(elems);
-});
-
 
 /* ------------------------------------*/
 /*** TITLE BAR  */
 /* ------------------------------------*/
 
 // Minimize task
-$(".titlebar .titlebar-minimize").on("click", (e) => {
+$(".titlebar .titlebar-minimize").on("click", () => {
     let window = BrowserWindow.getFocusedWindow();
     window.minimize();
 });
@@ -889,21 +1006,25 @@ i18next.init({
     resources: {
         br: {
             translation: {
-                    "name": "Nome",
-                    "last-modified": "Última modificação",
-                    "size": "Tamanho",
-                    "status": "Situação",
-                    "not-upload": "Nenhum arquivo para upload",
-                    "live-sync": "Sincronia",
-                    "drive": "Google Drive",
-                    "folders-sync": "Pastas Sincronizadas",
-                    "settings": "Configurações",
-                    "authentication": "Autenticação",
-                    "new-sync": "Nova Sincronia",
-                    "back": "Voltar",
-                    "finish": "Finalizar"
-                }
+                "name": "Nome",
+                "last-modified": "Última modificação",
+                "size": "Tamanho",
+                "status": "Situação",
+                "not-upload": "Nenhum arquivo para upload",
+                "live-sync": "Sincronia",
+                "drive": "Google Drive",
+                "folders-sync": "Pastas Sincronizadas",
+                "settings": "Configurações",
+                "authentication": "Autenticação",
+                "new-sync": "Nova Sincronia",
+                "back": "Voltar",
+                "finish": "Finalizar",
+                "language": "Idioma",
+                "choose-language": "Escolha o idioma",
+                "refresh": "Atualizar",
+                "about": "Sobre"
             }
+        }
     }
 }, function(err, t) {
     $('[data-i18n]').each(function(){
