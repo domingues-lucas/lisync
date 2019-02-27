@@ -13,7 +13,6 @@ $gray-light: #9e9e9e;
 /*** IMPORTS
 /* ----------------------------*/ 
 
-@import "nav.scss";
 @import "section.scss";
 
 /* ----------------------------*/
@@ -232,6 +231,81 @@ footer {
 
 }
 
+
+/* ------------------------------------*/
+/*** NAVBAR
+/* ------------------------------------*/
+
+.nav {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: #f5f5f5;
+    visibility: hidden;
+    opacity: 0;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    z-index: 1;
+  }
+  
+  .nav.is-shown {
+    visibility: visible;
+    opacity: 1;
+  }
+  
+    .nav-button {
+        display: block;
+        width: 100%;
+        cursor: pointer;
+        outline: none;
+        color: $gray;
+        display: block;
+        padding: 0 12px 0 24px;
+        line-height: 56px;
+        border: 0;
+        background: transparent;
+        text-align: left;
+
+        .material-icons {
+            color: $green;
+        }
+
+        &[disabled] {
+            color: $gray-light;
+            pointer-events: none;
+
+            .material-icons {
+                color: $gray-light;
+            }
+
+            &:hover,
+            &:active,
+            &:focus {
+                cursor: auto;
+                background-color: inherit;
+            }
+
+        }
+    }
+  
+    .nav-button:hover,
+    .nav-button:focus:not(.is-selected) {
+        background-color: #eee;
+    }
+  
+    .nav-button.is-selected {
+        background-color: $green;
+    }
+
+    .nav-button.is-selected {
+        color: #fff;
+
+        .material-icons {
+            color: #fff;
+        }
+    }
 
 /* ------------------------------------*/
 /*** ANIMATIONS
@@ -454,12 +528,8 @@ footer {
 
             }
 
-            p {
-                margin-left: 10px;
-                font-style: oblique;
-            }
         }
-    
+
         a {
             color: $gray;
             line-height: 14px;
@@ -468,6 +538,15 @@ footer {
                 cursor: pointer;
                 color: #4787f3;
             }
+        }
+        
+    }
+
+    p {
+
+        &.not-found {
+            margin-left: 10px;
+            font-style: oblique;
         }
         
     }
@@ -737,15 +816,15 @@ footer {
 
         main {
             margin: 0 auto;
-            padding-bottom: 100px;
+            // padding-bottom: 100px;
         }
     }
 
     .logo {
-        width: 400px;
+        max-width: 300px;
         display: block;
         margin: 0 auto;
-        margin-bottom: 30px;
+        // margin-bottom: 30px;
     }
 }
 

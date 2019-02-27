@@ -17,7 +17,7 @@ const fs = require('fs');
 const $ = require('jquery');
 
 const links = document.querySelectorAll('link[rel="import"]');
-const rclone = process.platform === 'darwin' ? '"rclone/mac/rclone"' : process.platform === 'win32' ? '"rclone/win/rclone"' : '"rclone/linux/rclone"';
+const rclone = process.platform === 'darwin' ? 'rclone/mac/rclone' : process.platform === 'win32' ? 'rclone/win/rclone' : 'rclone/linux/rclone';
 
 
 // Import and add each page to the DOM
@@ -38,6 +38,8 @@ Array.prototype.forEach.call(links, (link) => {
 /* ------------------------------------*/
 
 function EasyLocalStorage(key) {
+
+    localStorage[key] = localStorage[key] || "";
 
     this.get = function(format) {
         if ( format === 'parse' ) {
@@ -256,7 +258,7 @@ $('body').on('click', '#settings-section .authentication .connect', function() {
 
     process.stdout.on(
         'data',
-        function(data) {
+        function(err, data, stderr) {
             data_line += data;
             console.log(data);
             if (data_line[data_line.length-1] == '\n') {
@@ -286,94 +288,112 @@ $('body').on('click', '#settings-section .authentication .disconnect', function(
 });
 
 function getGDriveStatus() {
+
     console.log(rclone + ' listremotes')
+
     cmd.get(
         rclone + ' listremotes',
         function(err, data, stderr){
             console.log(data)
             if (data) {
                 aboutGDrive();
-                console.log("Conected!")
             } else {
-                $('#settings-section .authentication .status').html(`
-                    <div class="google-connect">
-                        <div class="row">
-                            <div class="col s1">
-                                <img class="logo" src="./assets/img/google-drive.png">
-                            </div>
-                            <div class="col s8">
-                                <p>Conectar-se com o Google Drive</p>
-                            </div>
-                            <div class="col s3">
-                                <button class="waves-effect waves-light btn-large right connect">
-                                    <i class="material-icons left">cloud_queue</i>Conectar
-                                </button>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col s12">
-                                <section class="message"></section>
-                            </div>
-                        </div>
-                    </div>
-                `);
+                renderGDriveConnect();
             }
         }
     );
 }
 
 function aboutGDrive() {
+
     loading(true);
+    $('#settings-section .authentication .status').html(`<p>Carregando informações do drive...</p>`);
+
     cmd.get(
         rclone + ' about gdrive: --json',
         function(err, data, stderr){
+
+            try {
+                let about = JSON.parse(data);
+                renderAboutGDrive(about)
+            } catch (e) {
+                renderGDriveConnect();
+            }
+
             loading(false);
-            let about = JSON.parse(data);
-
-            $('#settings-section .authentication .status').html(`
-
-                <div class="row">
-                    <div class="col s12">
-                        <div class="section materialize-section">
-                            <h6><i class="material-icons left">check_circle_outline</i>Você está conectado ao Google Drive!</h6>
-                        </div>
-                        <div class="divider"></div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col s12">
-                        <table class="striped">
-                            <tbody>
-                                <tr>
-                                    <td><b>Total</b></td><td>${about.total.bytesFormat()}</td>
-                                </tr>
-                                <tr>
-                                    <td><b>Used</b></td><td>${about.used.bytesFormat()}</td>
-                                </tr>
-                                <tr>
-                                    <td><b>Trashed</b></td><td>${about.trashed.bytesFormat()}</td>
-                                </tr>
-                                <tr>
-                                    <td><b>Other</b></td><td>${about.other.bytesFormat()}</td>
-                                </tr>
-                                <tr>
-                                    <td><b>Free</b></td><td>${about.free.bytesFormat()}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col s12 actions">
-                        <button class="waves-effect waves-light btn disconnect right"><i class="material-icons left">close</i>Desconectar</button>
-                    </div>
-                </div>
-            `);
-
         }
     );
+}
+
+function renderAboutGDrive(about) {
+
+    console.log("Conected!")
+
+    $('#settings-section .authentication .status').html(`
+        <div class="row">
+            <div class="col s12">
+                <div class="section materialize-section">
+                    <h6><i class="material-icons left">check_circle_outline</i>Você está conectado ao Google Drive!</h6>
+                </div>
+                <div class="divider"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col s12">
+                <table class="striped">
+                    <tbody>
+                        <tr>
+                            <td><b>Total</b></td><td>${about.total.bytesFormat()}</td>
+                        </tr>
+                        <tr>
+                            <td><b>Used</b></td><td>${about.used.bytesFormat()}</td>
+                        </tr>
+                        <tr>
+                            <td><b>Trashed</b></td><td>${about.trashed.bytesFormat()}</td>
+                        </tr>
+                        <tr>
+                            <td><b>Other</b></td><td>${about.other.bytesFormat()}</td>
+                        </tr>
+                        <tr>
+                            <td><b>Free</b></td><td>${about.free.bytesFormat()}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col s12 actions">
+                <button class="waves-effect waves-light btn disconnect right"><i class="material-icons left">close</i>Desconectar</button>
+            </div>
+        </div>
+    `);
+}
+
+function renderGDriveConnect() {
+    $('#settings-section .authentication .status').html(`
+        <div class="google-connect">
+            <div class="row">
+                <div class="col s1">
+                    <img class="logo" src="./assets/img/google-drive.png">
+                </div>
+                <div class="col s8">
+                    <p>Conectar-se com o Google Drive</p>
+                </div>
+                <div class="col s3">
+                    <button class="waves-effect waves-light btn-large right connect">
+                        <i class="material-icons left">cloud_queue</i>Conectar
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s12">
+                    <section class="message"></section>
+                </div>
+            </div>
+        </div>
+    `);
 }
 
 /* ------------------------------------*/
@@ -907,7 +927,7 @@ function updateListSyncs() {
 
     }
     else {
-        $('#list-syncs').html('<li>Nenhuma pasta e sincronia</li>');
+        $('#list-syncs').html('<p class="not-found">Nenhuma pasta em sincronia</p>');
     }
 }
 
