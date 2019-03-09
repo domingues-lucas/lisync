@@ -17,7 +17,7 @@ const fs = require('fs');
 const $ = require('jquery');
 
 const links = document.querySelectorAll('link[rel="import"]');
-const rclone = process.platform === 'darwin' ? 'rclone/mac/rclone' : process.platform === 'win32' ? 'rclone/win/rclone' : 'rclone/linux/rclone';
+const rclone = process.platform === 'darwin' ? 'rclone/mac/rclone' : process.platform === 'win32' ? '"rclone/win/rclone"' : 'rclone/linux/rclone';
 
 
 // Import and add each page to the DOM
@@ -620,7 +620,7 @@ function openFolder(path) {
                     </li>
                 `);
             }
-            
+
             if (data) {
                 JSON.parse(data).forEach(e => {
 
@@ -662,43 +662,42 @@ $('body').on('click', '.open-folder', function(){
 
 function openLocalFolder(path) {
 
-    cmd.get(
-        'cd "' + path.escapeQuotes() + '" && ls -d */',
-        function(err, data, stderr){
+    $('.local.list-files .directory').html('');
 
-            $('.local.list-files .directory').html('');
+    let backDirectory = path.split('/').slice(0, -1).join('/');
+    if ( backDirectory !== '' ) {
 
-            let backDirectory = path.split('/').slice(0, -1).join('/');
-            if ( backDirectory !== '' ) {
+        $('.local.list-files .directory').html(`
+            <li>
+                <div class="name">
+                    <a class="open-local-folder" attr-path="${backDirectory}">
+                        <img class="icon" src="./assets/icons/folder.svg">
+                        <span class="item-name">..</span>
+                    </a>
+                </div>
+            </li>
+        `);
+    };
 
-                $('.local.list-files .directory').html(`
-                    <li>
-                        <div class="name">
-                            <a class="open-local-folder" attr-path="${backDirectory}">
-                                <img class="icon" src="./assets/icons/folder.svg">
-                                <span class="item-name">..</span>
-                            </a>
-                        </div>
-                    </li>
-                `);
-            };
+    fs.readdirSync(path.escapeQuotes()).filter(function (file) {
 
-            data.split('\n').forEach(e => {
-                if ( e !== ''){
-                    $('.local.list-files .directory').append(`
-                        <li class="item-select local unique">
-                            <div class="name truncate">
-                                <a class="open-local-folder" attr-path="${path}">
-                                    <img class="icon" src="./assets/icons/folder.svg">
-                                    <span class="item-name">${e.slice(0, -1)}</span>
-                                </a>
-                            </div>
-                        </li>
-                    `);
-                };
-            });
-        }
-    );
+        if (fs.statSync(path + '/' + file).isDirectory() ) {
+
+            $('.local.list-files .directory').append(`
+                <li class="item-select local unique">
+                    <div class="name truncate">
+                        <a class="open-local-folder" attr-path="${path}">
+                            <img class="icon" src="./assets/icons/folder.svg">
+                            <span class="item-name">${file}</span>
+                        </a>
+                    </div>
+                </li>
+            `);
+
+        };
+
+    });
+
 }
 
 function openRemoteFolder (path) {
