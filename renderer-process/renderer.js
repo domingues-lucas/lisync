@@ -39,7 +39,7 @@ Array.prototype.forEach.call(links, (link) => {
 
 function EasyLocalStorage(key) {
 
-    localStorage[key] = localStorage[key] || "";
+    localStorage[key] = localStorage[key] || '[]';
 
     this.get = function(format) {
         if ( format === 'parse' ) {
@@ -75,7 +75,7 @@ function handleSectionTrigger (e) {
         checkSync('first');
 
     } else if (section === 'select-folders') {
-        openLocalFolder('/');
+        openLocalFolder(electron.remote.app.getPath('home'));
         openRemoteFolder('/');
 
     } else if (section === 'settings') {
@@ -405,104 +405,112 @@ let modifiedFiles = [],
 
 function checkSync(step) {
 
-    loading(true);
-
     let foldersSync = localStorageFileSync.get('parse'),
         divContent = $('#live-sync-section .active-syncs'),
         totalSyncs = foldersSync.length;
 
-    if ( step === 'first' ) {
-
-        divContent.html('');
-
-        $.each(foldersSync, function( i, folderSync ) {
-
-            if ( folderSync.status ) {
-
-                cmd.get(`${rclone} check  --one-way "${folderSync.local}" "gdrive:${folderSync.remote}"`, function(err, data, stderr){
-
-                    let _modifiedFiles = stderr.split('\n').filter( ( elem, index, arr ) => elem.indexOf( 'ERROR' ) !== -1 );
-
-                    modifiedFiles[i] = _modifiedFiles.map( elem => folderSync.local + '/' + elem.split(':')[3].trim() );
-
-                    modifiedFiles[i].forEach( function(e) {
-                        let extension = e.lastElement('.'),
-                            icon = getIcon(extension),
-                            stats = getFileStats(e),
-                            name = e.lastElement('/');
-
-                        divContent.append(syncRowHTML('active', folderSync.local, icon, name, stats.modified, stats.size));
-
-                    });
-
-                    if ( totalSyncs === i + 1 ) {
-
-                        if ( _modifiedFiles.length === 0 ) {
-                            divContent.prepend(`<li class="not-found"><p>${i18next.store.data[i18next.language].translation['not-upload']}</p></li>`);
-                        }
-
-                        checkSync();
-                    }
-
-                });
-
-            }
-        });
-
-    } else {
+    if ( totalSyncs > 0 ) {
 
         loading(true);
 
-        $.each(foldersSync, function( i, folderSync ) {
+        if ( step === 'first' ) {
 
-            if ( folderSync.status ) {
+            divContent.html('');
 
-                cmd.get(`${rclone} check  --one-way "${folderSync.local}" "gdrive:${folderSync.remote}"`, function(err, data, stderr){
+            $.each(foldersSync, function( i, folderSync ) {
 
-                    let _modifiedFiles = stderr.split('\n').filter( ( elem, index, arr ) => elem.indexOf( 'ERROR' ) !== -1 ),
-                        item = divContent.find('li'),
-                        items_add = 0;
+                if ( folderSync.status ) {
 
-                    _modifiedFiles = _modifiedFiles.map( elem => folderSync.local + '/' + elem.split(':')[3].trim() );
+                    cmd.get(`${rclone} check  --one-way "${folderSync.local}" "gdrive:${folderSync.remote}"`, function(err, data, stderr){
 
-                    _modifiedFiles.forEach( function(e) {
+                        let _modifiedFiles = stderr.split('\n').filter( ( elem, index, arr ) => elem.indexOf( 'ERROR' ) !== -1 );
 
-                        if ( modifiedFiles[i].indexOf(e) === -1) {
+                        modifiedFiles[i] = _modifiedFiles.map( elem => folderSync.local + '/' + elem.split(':')[3].trim() );
 
+                        modifiedFiles[i].forEach( function(e) {
                             let extension = e.lastElement('.'),
                                 icon = getIcon(extension),
                                 stats = getFileStats(e),
                                 name = e.lastElement('/');
 
-                            divContent.prepend(syncRowHTML('remove', folderSync.local, icon, name, stats.modified, stats.size));
-                            divContent.find('li').eq(0).removeClass('remove');
-                            items_add++;
+                            divContent.append(syncRowHTML('active', folderSync.local, icon, name, stats.modified, stats.size));
+
+                        });
+
+                        if ( totalSyncs === i + 1 ) {
+
+                            if ( _modifiedFiles.length === 0 ) {
+                                divContent.prepend(`<li class="not-found"><p>${i18next.store.data[i18next.language].translation['not-upload']}</p></li>`);
+                            }
+
+                            checkSync();
                         }
+
                     });
 
-                    divContent = $('#live-sync-section .active-syncs');
-                    item = divContent.find('li');
-                    let modify_icon = '';
+                }
+            });
 
-                    if ( modifiedFiles[i] ) {
-                        modifiedFiles[i].forEach( function(e, i) {
-                            if ( _modifiedFiles.indexOf(e) === -1) {
-                                modify_icon = item.eq(i + items_add).find('.status .material-icons');
-                                modify_icon.removeClass('blink');
-                                modify_icon.addClass('done');
-                                modify_icon.text('cloud_done');
+        } else {
+
+            $.each(foldersSync, function( i, folderSync ) {
+
+                if ( folderSync.status ) {
+
+                    cmd.get(`${rclone} check  --one-way "${folderSync.local}" "gdrive:${folderSync.remote}"`, function(err, data, stderr){
+
+                        let _modifiedFiles = stderr.split('\n').filter( ( elem, index, arr ) => elem.indexOf( 'ERROR' ) !== -1 ),
+                            item = divContent.find('li'),
+                            items_add = 0;
+
+                        _modifiedFiles = _modifiedFiles.map( elem => folderSync.local + '/' + elem.split(':')[3].trim() );
+
+                        _modifiedFiles.forEach( function(e) {
+
+                            if ( modifiedFiles[i].indexOf(e) === -1) {
+
+                                let extension = e.lastElement('.'),
+                                    icon = getIcon(extension),
+                                    stats = getFileStats(e),
+                                    name = e.lastElement('/');
+
+                                divContent.prepend(syncRowHTML('remove', folderSync.local, icon, name, stats.modified, stats.size));
+                                divContent.find('li').eq(0).removeClass('remove');
+                                items_add++;
                             }
                         });
 
-                        modifiedFiles[i] = _modifiedFiles;
-                    }
+                        divContent = $('#live-sync-section .active-syncs');
+                        item = divContent.find('li');
+                        let modify_icon = '';
 
-                    totalSyncs === i + 1 ? loading(false) : null;
+                        if ( modifiedFiles[i] ) {
+                            modifiedFiles[i].forEach( function(e, i) {
+                                if ( _modifiedFiles.indexOf(e) === -1) {
+                                    modify_icon = item.eq(i + items_add).find('.status .material-icons');
+                                    modify_icon.removeClass('blink');
+                                    modify_icon.addClass('done');
+                                    modify_icon.text('cloud_done');
+                                }
+                            });
 
-                });
+                            modifiedFiles[i] = _modifiedFiles;
+                        }
 
-            }
+                        totalSyncs === i + 1 ? loading(false) : null;
 
+                    });
+
+                }
+
+            });
+
+        }
+
+    } else {
+
+        $( document ).ready(function() {
+            divContent.html(`<li class="not-found"><p>${i18next.store.data[i18next.language].translation['Not folder sync']}</p><li>`);
         });
 
     }
@@ -663,8 +671,13 @@ $('body').on('click', '.open-folder', function(){
 function openLocalFolder(path) {
 
     $('.local.list-files .directory').html('');
+    $('.select-folders .hidden-files input').attr('data-directory', path);
 
-    let backDirectory = path.split('/').slice(0, -1).join('/');
+    let backDirectory = path.split('/').slice(0, -1).join('/'),
+        allFolders = [],
+        visibleFolders = [],
+        hiddenFolder = $('.select-folders .hidden-files input').is(":checked");
+
     if ( backDirectory !== '' ) {
 
         $('.local.list-files .directory').html(`
@@ -679,22 +692,52 @@ function openLocalFolder(path) {
         `);
     };
 
-    fs.readdirSync(path.escapeQuotes()).filter(function (file) {
+    fs.readdirSync(path.escapeQuotes()).filter(function (folder) {
 
-        if (fs.statSync(path + '/' + file).isDirectory() ) {
+        let fullPath = path + '/' + folder;
 
-            $('.local.list-files .directory').append(`
-                <li class="item-select local unique">
-                    <div class="name truncate">
-                        <a class="open-local-folder" attr-path="${path}">
-                            <img class="icon" src="./assets/icons/folder.svg">
-                            <span class="item-name">${file}</span>
-                        </a>
-                    </div>
-                </li>
-            `);
+        if ( fs.existsSync(fullPath) ) {
 
-        };
+            if (fs.statSync(fullPath).isDirectory() ) {
+                allFolders.push(folder);
+            };
+
+        }
+
+    });
+
+    const cmdListFolders = process.platform === 'win32' ? 'dir' : 'ls';
+
+
+    cmd.get(`${cmdListFolders} "${path.escapeQuotes()}"`, function(err, data, stderr){
+
+        if ( data ) {
+            data.split('\n').forEach(function(e) {
+                visibleFolders.push(e.trim());
+            });
+        }
+
+        allFolders.forEach(function(e) {
+
+            if ( !hiddenFolder ) {
+                hiddenFolder = visibleFolders.indexOf(e) >= 0 ? true : false;
+            }
+
+            if ( hiddenFolder ) {
+
+                $('.local.list-files .directory').append(`
+                    <li class="item-select local unique">
+                        <div class="name truncate">
+                            <a class="open-local-folder" attr-path="${path}">
+                                <img class="icon" src="./assets/icons/folder.svg">
+                                <span class="item-name">${e}</span>
+                            </a>
+                        </div>
+                    </li>
+                `);
+            }
+
+        });
 
     });
 
@@ -784,7 +827,7 @@ function selectedFolder(path, source) {
 }
 
 function addFolderSync(sync) {
-    let _current = localStorageFileSync.get() !== '' ? localStorageFileSync.get('parse') : [];
+    let _current = localStorageFileSync.get('parse');
     _current.push(sync);
     localStorageFileSync.set('parse', _current);
     updateListSyncs();
@@ -820,7 +863,7 @@ function finishSyncFolder(verified) {
 
 }
 
-!localStorageFileSync.get() ? localStorageFileSync.set(null, '') : null;
+!localStorageFileSync.get() ? localStorageFileSync.set(null, '[]') : null;
 
 $('body').on('click', '.open-local-folder', function(event){
     event.stopPropagation();
@@ -874,6 +917,10 @@ $('.empty-folder').on('click', '.confirm', function(){
     finishSyncFolder(true);
 });
 
+$('.select-folders .hidden-files input').on('click', function(){
+    openLocalFolder($(this).attr('data-directory'));
+});
+
 
 /* ------------------------------------*/
 /*** PAGE FOLDERS SYNC
@@ -881,7 +928,7 @@ $('.empty-folder').on('click', '.confirm', function(){
 
 function updateListSyncs() {
 
-    if ( localStorageFileSync.get() !== '' ) {
+    if ( localStorageFileSync.get() !== '[]' ) {
 
         $('#list-syncs ul').html('');
 
@@ -924,9 +971,10 @@ function updateListSyncs() {
             `);
         });
 
-    }
-    else {
-        $('#list-syncs').html('<p class="not-found">Nenhuma pasta em sincronia</p>');
+    } else {
+        $( document ).ready(function() {
+            $('#list-syncs ul').html(`<li class="not-found"><p>${i18next.store.data[i18next.language].translation['Not folder sync']}</p></li>`);
+        });
     }
 }
 
@@ -949,11 +997,6 @@ function pauseSync(item) {
 function playSync(item) {
     updateStatusSync(item, true);
 }
-
-$('#button-select-folders').on('click', function() {
-    openLocalFolder('/');
-    openRemoteFolder('/');
-});
 
 $('#list-syncs').on('click', '.play-or-pause', function() {
     $(this).toggleClass('playing');
@@ -1030,6 +1073,7 @@ i18next.init({
                 "size": "Tamanho",
                 "status": "Situação",
                 "not-upload": "Nenhum arquivo para upload",
+                "Not folder sync": "Nenhuma pasta sincronizada",
                 "live-sync": "Sincronia",
                 "drive": "Google Drive",
                 "folders-sync": "Pastas Sincronizadas",
@@ -1041,7 +1085,8 @@ i18next.init({
                 "language": "Idioma",
                 "choose-language": "Escolha o idioma",
                 "refresh": "Atualizar",
-                "about": "Sobre"
+                "about": "Sobre",
+                "View hidden folders": "Ver pastas ocultas"
             }
         }
     }
@@ -1059,7 +1104,7 @@ i18next.init({
 /*** SPLASH SCREEN
 /* ------------------------------------*/
 
-setTimeout(function(){ 
+setTimeout(function() { 
     $('#splash-screen-modal').removeClass('is-shown');
 
     try {

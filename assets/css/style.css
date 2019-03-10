@@ -412,6 +412,31 @@ footer .btn-large {
   width: 100px;
 }
 
+.wrapper-directory .hidden-files {
+  float: right;
+  margin-right: 20px;
+  height: 13px;
+}
+
+.wrapper-directory .hidden-files span {
+  font-size: 13px;
+  height: 15px;
+  line-height: 15px;
+  padding-left: 25px;
+}
+
+.wrapper-directory .hidden-files span::after {
+  width: 15px !important;
+  height: 15px !important;
+}
+
+.wrapper-directory .hidden-files span::before {
+  top: -1px !important;
+  left: 2px !important;
+  width: 5px !important;
+  height: 10px !important;
+}
+
 .wrapper-directory.two-cols .local,
 .wrapper-directory.two-cols .remote {
   width: 50%;
@@ -548,6 +573,15 @@ footer .btn-large {
   margin-right: 4px;
 }
 
+.list-files .directory li.not-found {
+  border-bottom: 0;
+}
+
+.list-files .directory li.not-found p {
+  margin-left: 10px;
+  font-style: oblique;
+}
+
 .list-files .directory a {
   color: #434343;
   line-height: 14px;
@@ -556,11 +590,6 @@ footer .btn-large {
 .list-files .directory a:hover {
   cursor: pointer;
   color: #4787f3;
-}
-
-.list-files p.not-found {
-  margin-left: 10px;
-  font-style: oblique;
 }
 
 .list-files.two-lines .icon {
