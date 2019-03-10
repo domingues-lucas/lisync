@@ -82,10 +82,6 @@ h1 {
   text-align: left;
 }
 
-h1 img {
-  width: 150px;
-}
-
 .btn,
 .btn-large {
   background-color: #4787f3;
@@ -125,6 +121,15 @@ footer .btn-large {
   visibility: visible;
   opacity: 1;
   margin-left: 21px;
+}
+
+.dropdown-content li > a,
+.dropdown-content li > span {
+  color: #4787f3;
+}
+
+.select-wrapper input.select-dropdown:focus {
+  border-color: #4787f3;
 }
 
 /* ----------------------------*/
@@ -254,6 +259,13 @@ footer .btn-large {
   -webkit-box-shadow: none;
   box-shadow: none;
   z-index: 1;
+}
+
+.nav h1 {
+  position: absolute;
+  bottom: 20px;
+  width: calc(100% - 48px);
+  text-align: center;
 }
 
 .nav.is-shown {
@@ -725,6 +737,10 @@ footer .btn-large {
   width: 50px;
 }
 
+.settings .material-icons {
+  color: #60dd4d;
+}
+
 /*-------------------------------------*/
 /*** SELECT FOLDERS
 /* ------------------------------------*/
@@ -812,17 +828,55 @@ footer .btn-large {
 /*** ABOUT
 /* ------------------------------------*/
 .about {
-  padding-top: 60px;
-  text-align: center;
+  padding: 0 16px;
+}
+
+.about a {
+  color: #4787f3;
+}
+
+.about p {
+  font-size: 14px;
+  margin-right: 20px;
+  color: #434343;
+}
+
+.about .about-lisync {
+  padding: 16px 0;
+}
+
+.about .about-lisync p {
+  margin-top: 4px;
+}
+
+.about .acknowledgement {
+  padding: 16px 0;
+}
+
+.about .acknowledgement p {
+  margin-left: 16px;
 }
 
 .about .lisync {
-  max-width: 400px;
+  max-width: 200px;
 }
 
 .about .others {
-  max-width: 100px;
-  margin: 12px;
+  width: 100%;
+  max-width: 60px;
+  margin: 4px 12px;
+}
+
+.about .others.materialize {
+  margin-top: 20px;
+}
+
+.about .others.rclone {
+  margin-top: 17px;
+}
+
+.about .material-icons {
+  color: #60dd4d;
 }
 
 /* ------------------------------------*/

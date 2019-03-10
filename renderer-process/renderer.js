@@ -8,7 +8,6 @@ const electron = require('electron');
 const BrowserWindow = electron.remote.BrowserWindow;
 const settings = require('electron-settings');
 
-const i18next = require('i18next');
 const cmd = require('node-cmd');
 const materialize = require('materialize-css');
 const moment = require('moment');
@@ -16,12 +15,56 @@ const os = require('os');
 const fs = require('fs');
 const $ = require('jquery');
 
+/* ------------------------------------*/
+/*** GENERAL VARIABLES
+/* ------------------------------------*/
+
 const links = document.querySelectorAll('link[rel="import"]');
 const rclone = process.platform === 'darwin' ? 'rclone/mac/rclone' : process.platform === 'win32' ? '"rclone/win/rclone"' : 'rclone/linux/rclone';
+const localStorageFileSync = new EasyLocalStorage('folders-sync');
+const sectionId = settings.get('activeSectionButtonId');
+const activeLanguage = localStorage.language || 'en-US';
+const translations = setTranslation();
+const fileExtensions = {
+    'ai': 'ai.svg',
+    'avi': 'avi.svg',
+    'css': 'css.svg',
+    'csv': 'csv.svg',
+    'dbf': 'dbf.svg',
+    'doc': 'doc.svg',
+    'docx': 'doc.svg',
+    'dwg': 'dwg.svg',
+    'exe': 'exe.svg',
+    'fla': 'fla.svg',
+    'html': 'html.svg',
+    'htm': 'html.svg',
+    'iso': 'iso.svg',
+    'jpg': 'jpg.svg',
+    'jpeg': 'jpg.svg',
+    'js': 'js.svg',
+    'json': 'json.svg',
+    'mp3': 'mp3.svg',
+    'mp4': 'mp4.svg',
+    'pdf': 'pdf.svg',
+    'png': 'png.svg',
+    'ppt': 'ppt.svg',
+    'pptx': 'ppt.svg',
+    'psd': 'psd.svg',
+    'rtf': 'rtf.svg',
+    'svg': 'svg.svg',
+    'txt': 'txt.svg',
+    'xls': 'xls.svg',
+    'xlsx': 'xls.svg',
+    'xml': 'xml.svg',
+    'zip': 'zip.svg'
+};
 
+/* ------------------------------------*/
+/*** GENERAL FUNCTIONS
+/* ------------------------------------*/
 
-// Import and add each page to the DOM
 Array.prototype.forEach.call(links, (link) => {
+
     let template = link.import.querySelector('.task-template'),
         clone = document.importNode(template.content, true);
 
@@ -30,12 +73,31 @@ Array.prototype.forEach.call(links, (link) => {
     } else {
         document.querySelector('.content').appendChild(clone);
     }
+
 });
 
+function setTranslation() {
 
-/* ------------------------------------*/
-/*** GENERAL FUNCTIONS
-/* ------------------------------------*/
+    try {
+        if ( activeLanguage !== '' && activeLanguage !== 'en-US' ) {
+            return JSON.parse(fs.readFileSync('./locales/' + activeLanguage + '/translation.json', 'utf8'));
+        }
+    } catch (e) {
+        console.log('Translation file not found.');
+        console.error(e);
+    }
+
+    return {};
+}
+
+function getTranslation(str) {
+
+    if( translations.hasOwnProperty(str) ){
+        return translations[str];
+    }
+
+    return str;
+}
 
 function EasyLocalStorage(key) {
 
@@ -163,47 +225,6 @@ String.prototype.escapeQuotes = function(a) {
 
 
 /* ------------------------------------*/
-/*** GENERAL VARIABLES
-/* ------------------------------------*/
-
-const localStorageFileSync = new EasyLocalStorage('folders-sync');
-const sectionId = settings.get('activeSectionButtonId');
-const fileExtensions = {
-    'ai': 'ai.svg',
-    'avi': 'avi.svg',
-    'css': 'css.svg',
-    'csv': 'csv.svg',
-    'dbf': 'dbf.svg',
-    'doc': 'doc.svg',
-    'docx': 'doc.svg',
-    'dwg': 'dwg.svg',
-    'exe': 'exe.svg',
-    'fla': 'fla.svg',
-    'html': 'html.svg',
-    'htm': 'html.svg',
-    'iso': 'iso.svg',
-    'jpg': 'jpg.svg',
-    'jpeg': 'jpg.svg',
-    'js': 'js.svg',
-    'json': 'json.svg',
-    'mp3': 'mp3.svg',
-    'mp4': 'mp4.svg',
-    'pdf': 'pdf.svg',
-    'png': 'png.svg',
-    'ppt': 'ppt.svg',
-    'pptx': 'ppt.svg',
-    'psd': 'psd.svg',
-    'rtf': 'rtf.svg',
-    'svg': 'svg.svg',
-    'txt': 'txt.svg',
-    'xls': 'xls.svg',
-    'xlsx': 'xls.svg',
-    'xml': 'xml.svg',
-    'zip': 'zip.svg'
-};
-
-
-/* ------------------------------------*/
 /*** GENERAL EVENTS
 /* ------------------------------------*/
 
@@ -251,6 +272,13 @@ document.addEventListener('DOMContentLoaded', function() {
 /* ------------------------------------*/
 /*** SETTINGS
 /* ------------------------------------*/
+
+$('#settings-section .language select').val(activeLanguage);
+
+$('body').on('change', '#settings-section .language select', function() {
+    localStorage.language = $(this).val();
+    location.reload();
+});
 
 $('body').on('click', '#settings-section .authentication .connect', function() {
     let data_line = '',
@@ -307,7 +335,7 @@ function getGDriveStatus() {
 function aboutGDrive() {
 
     loading(true);
-    $('#settings-section .authentication .status').html(`<p>Carregando informações do drive...</p>`);
+    $('#settings-section .authentication .status').html(`<p>${getTranslation('Loading Drive informations...')}</p>`);
 
     cmd.get(
         rclone + ' about gdrive: --json',
@@ -317,6 +345,7 @@ function aboutGDrive() {
                 let about = JSON.parse(data);
                 renderAboutGDrive(about)
             } catch (e) {
+                console.log(e);
                 renderGDriveConnect();
             }
 
@@ -327,15 +356,17 @@ function aboutGDrive() {
 
 function renderAboutGDrive(about) {
 
-    console.log("Conected!")
+    console.log("Conected!!!")
 
     $('#settings-section .authentication .status').html(`
         <div class="row">
             <div class="col s12">
                 <div class="section materialize-section">
-                    <h6><i class="material-icons left">check_circle_outline</i>Você está conectado ao Google Drive!</h6>
+                    <h6>
+                        <i class="material-icons left">check_circle_outline</i>
+                        ${getTranslation('You are connected to Google Drive!')}
+                    </h6>
                 </div>
-                <div class="divider"></div>
             </div>
         </div>
 
@@ -344,19 +375,19 @@ function renderAboutGDrive(about) {
                 <table class="striped">
                     <tbody>
                         <tr>
-                            <td><b>Total</b></td><td>${about.total.bytesFormat()}</td>
+                            <td><b>${getTranslation('Total')}</b></td><td>${about.total.bytesFormat()}</td>
                         </tr>
                         <tr>
-                            <td><b>Used</b></td><td>${about.used.bytesFormat()}</td>
+                            <td><b>${getTranslation('Used')}</b></td><td>${about.used.bytesFormat()}</td>
                         </tr>
                         <tr>
-                            <td><b>Trashed</b></td><td>${about.trashed.bytesFormat()}</td>
+                            <td><b>${getTranslation('Trashed')}</b></td><td>${about.trashed.bytesFormat()}</td>
                         </tr>
                         <tr>
-                            <td><b>Other</b></td><td>${about.other.bytesFormat()}</td>
+                            <td><b>${getTranslation('Other')}</b></td><td>${about.other.bytesFormat()}</td>
                         </tr>
                         <tr>
-                            <td><b>Free</b></td><td>${about.free.bytesFormat()}</td>
+                            <td><b>${getTranslation('Free')}</b></td><td>${about.free.bytesFormat()}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -365,13 +396,16 @@ function renderAboutGDrive(about) {
 
         <div class="row">
             <div class="col s12 actions">
-                <button class="waves-effect waves-light btn disconnect right"><i class="material-icons left">close</i>Desconectar</button>
+                <button class="waves-effect waves-light btn disconnect right"><i class="material-icons left">close</i>${getTranslation('Disconnect')}</button>
             </div>
         </div>
     `);
 }
 
 function renderGDriveConnect() {
+
+    console.log("NOT Conected!!!")
+
     $('#settings-section .authentication .status').html(`
         <div class="google-connect">
             <div class="row">
@@ -379,7 +413,7 @@ function renderGDriveConnect() {
                     <img class="logo" src="./assets/img/google-drive.png">
                 </div>
                 <div class="col s8">
-                    <p>Conectar-se com o Google Drive</p>
+                    <p>${getTranslation('Connect to Google Drive')}</p>
                 </div>
                 <div class="col s3">
                     <button class="waves-effect waves-light btn-large right connect">
@@ -440,7 +474,7 @@ function checkSync(step) {
                         if ( totalSyncs === i + 1 ) {
 
                             if ( _modifiedFiles.length === 0 ) {
-                                divContent.prepend(`<li class="not-found"><p>${i18next.store.data[i18next.language].translation['not-upload']}</p></li>`);
+                                divContent.prepend(`<li class="not-found"><p>${getTranslation('Nothing folder for upload')}</p></li>`);
                             }
 
                             checkSync();
@@ -510,7 +544,7 @@ function checkSync(step) {
     } else {
 
         $( document ).ready(function() {
-            divContent.html(`<li class="not-found"><p>${i18next.store.data[i18next.language].translation['Not folder sync']}</p><li>`);
+            divContent.html(`<li class="not-found"><p>${getTranslation('Nothing file for sync')}</p><li>`);
         });
 
     }
@@ -673,12 +707,12 @@ function openLocalFolder(path) {
     $('.local.list-files .directory').html('');
     $('.select-folders .hidden-files input').attr('data-directory', path);
 
-    let backDirectory = path.split('/').slice(0, -1).join('/'),
+    let backDirectory = path.split('/').slice(0, -1).join('/') || '/',
         allFolders = [],
         visibleFolders = [],
         hiddenFolder = $('.select-folders .hidden-files input').is(":checked");
 
-    if ( backDirectory !== '' ) {
+    if ( path !== '/' ) {
 
         $('.local.list-files .directory').html(`
             <li>
@@ -973,7 +1007,7 @@ function updateListSyncs() {
 
     } else {
         $( document ).ready(function() {
-            $('#list-syncs ul').html(`<li class="not-found"><p>${i18next.store.data[i18next.language].translation['Not folder sync']}</p></li>`);
+            $('#list-syncs ul').html(`<li class="not-found"><p>${getTranslation('Nothing folder for sync')}</p></li>`);
         });
     }
 }
@@ -1057,49 +1091,6 @@ $(".titlebar .titlebar-close").on("click", (e) => {
     window.close();
 });
 
-
-/* ------------------------------------*/
-/*** LOCATIION i18n  */
-/* ------------------------------------*/
-
-i18next.init({
-    lng: 'br',
-    debug: false,
-    resources: {
-        br: {
-            translation: {
-                "name": "Nome",
-                "last-modified": "Última modificação",
-                "size": "Tamanho",
-                "status": "Situação",
-                "not-upload": "Nenhum arquivo para upload",
-                "Not folder sync": "Nenhuma pasta sincronizada",
-                "live-sync": "Sincronia",
-                "drive": "Google Drive",
-                "folders-sync": "Pastas Sincronizadas",
-                "settings": "Configurações",
-                "authentication": "Autenticação",
-                "new-sync": "Nova Sincronia",
-                "back": "Voltar",
-                "finish": "Finalizar",
-                "language": "Idioma",
-                "choose-language": "Escolha o idioma",
-                "refresh": "Atualizar",
-                "about": "Sobre",
-                "View hidden folders": "Ver pastas ocultas"
-            }
-        }
-    }
-}, function(err, t) {
-    $('[data-i18n]').each(function(){
-        let label = i18next.t(
-            $(this).attr('data-i18n')
-        );
-        $(this).html(label);
-    });
-});
-
-
 /* ------------------------------------*/
 /*** SPLASH SCREEN
 /* ------------------------------------*/
@@ -1113,3 +1104,16 @@ setTimeout(function() {
     } catch {}
 
 }, 2000);
+
+/* ------------------------------------*/
+/*** LOCATIION i18n  */
+/* ------------------------------------*/
+
+$('[data-i18n]').each(function(){
+    $(this).html(
+        getTranslation($(this).attr('data-i18n'))
+    );
+});
+
+
+

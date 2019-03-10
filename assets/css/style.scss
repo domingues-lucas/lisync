@@ -58,10 +58,6 @@ html {
 h1 {
     margin: 12px 24px 24px 24px;
     text-align: left;
-
-    img {
-        width: 150px;
-    }
 }
 
 .btn,
@@ -104,6 +100,14 @@ footer {
     margin-left: 21px;
 }
 
+.dropdown-content li>a, 
+.dropdown-content li>span {
+    color: $blue;
+}
+
+.select-wrapper input.select-dropdown:focus {
+    border-color: $blue;
+}
 
 /* ----------------------------*/
 /*** TITLE BAR https://github.com/sidneys/electron-titlebar-windows
@@ -248,6 +252,13 @@ footer {
     -webkit-box-shadow: none;
     box-shadow: none;
     z-index: 1;
+
+    h1 {
+        position: absolute;
+        bottom: 20px;
+        width: calc(100% - 48px);
+        text-align: center;
+    }
   }
   
   .nav.is-shown {
@@ -712,6 +723,10 @@ footer {
         }
     }
 
+    .material-icons {
+        color: $green;
+    }
+
 }
 
 /*-------------------------------------*/
@@ -817,17 +832,56 @@ footer {
 /* ------------------------------------*/
 
 .about {
-    padding-top: 60px;
-    text-align: center;
+    padding: 0 16px;
+
+    a {
+        color: $blue;
+    }
+
+    p {
+        font-size: 14px;
+        margin-right: 20px;
+        color: $gray;
+    }
+
+    .about-lisync {
+        padding: 16px 0;
+
+        p {
+            margin-top: 4px;
+        }
+    }
+
+    .acknowledgement {
+        padding: 16px 0;
+
+        p {
+            margin-left: 16px;
+        }
+    }
     
     .lisync {
-        max-width: 400px;
+        max-width: 200px;
     }
 
     .others {
-        max-width: 100px;
-        margin: 12px;
+        width: 100%;
+        max-width: 60px;
+        margin: 4px 12px;
+
+        &.materialize {
+            margin-top: 20px;
+        }
+
+        &.rclone {
+            margin-top: 17px;
+        }
     }
+
+    .material-icons {
+        color: $green;
+    }
+
 }
 
 /* ------------------------------------*/
