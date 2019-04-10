@@ -8,6 +8,8 @@ const electron = require('electron');
 const BrowserWindow = electron.remote.BrowserWindow;
 const settings = require('electron-settings');
 
+const { dialog } = require('electron').remote
+
 const cmd = require('node-cmd');
 const materialize = require('materialize-css');
 const moment = require('moment');
@@ -21,6 +23,7 @@ const $ = require('jquery');
 
 const links = document.querySelectorAll('link[rel="import"]');
 const rclone = process.platform === 'darwin' ? 'rclone/mac/rclone' : process.platform === 'win32' ? '"rclone/win/rclone"' : 'rclone/linux/rclone';
+const slashes = process.platform === 'win32' ? '\\' : '/';
 const localStorageFileSync = new EasyLocalStorage('folders-sync');
 const sectionId = settings.get('activeSectionButtonId');
 const activeLanguage = localStorage.language || 'en-US';
@@ -137,7 +140,7 @@ function handleSectionTrigger (e) {
         checkSync('first');
 
     } else if (section === 'select-folders') {
-        openLocalFolder(electron.remote.app.getPath('home'));
+        openLocalFolder('/');
         openRemoteFolder('/');
 
     } else if (section === 'settings') {
@@ -645,7 +648,7 @@ function openFolder(path) {
     cmd.get(
         rclone + ' lsjson --fast-list gdrive:/' + path,
         function(err, data, stderr){
-
+			
             $('#remote').html('');
 
             let backDirectory = path.split('/').slice(0, -1).join('/');
@@ -701,83 +704,147 @@ $('body').on('click', '.open-folder', function(){
 /* ------------------------------------*/
 /*** PAGE SELECT FOLDERS
 /* ------------------------------------*/
+let Win32Drives;
 
 function openLocalFolder(path) {
+	if ( process.platform === 'win32' ) {
+		cmd.get('wmic logicaldisk get name', function(err, data, stderr){
+			Win32Drives = data.split('\n').map(drive => drive.trim() + slashes).filter(drive => drive.trim() !== 'Name' + slashes && drive.trim() !== slashes);
+			realOpenLocalFolder(path);
+		});
+	} else {
+		realOpenLocalFolder(path);
+	}
+}
+
+function realOpenLocalFolder(path) {
 
     $('.local.list-files .directory').html('');
     $('.select-folders .hidden-files input').attr('data-directory', path);
+	
+	const cmdListFolders = process.platform === 'win32' ? 'dir' : 'ls';
 
     let backDirectory = path.split('/').slice(0, -1).join('/') || '/',
         allFolders = [],
         visibleFolders = [],
+		listFolders = [],
         hiddenFolder = $('.select-folders .hidden-files input').is(":checked");
 
-    if ( path !== '/' ) {
 
-        $('.local.list-files .directory').html(`
-            <li>
-                <div class="name">
-                    <a class="open-local-folder" attr-path="${backDirectory}">
-                        <img class="icon" src="./assets/icons/folder.svg">
-                        <span class="item-name">..</span>
-                    </a>
-                </div>
-            </li>
-        `);
+	if ( path !== '/' ) {
+		openFolderBackHTML(backDirectory);
     };
+	
 
-    fs.readdirSync(path.escapeQuotes()).filter(function (folder) {
+	if ( process.platform === 'win32' && path === '/' ) {
+		Win32Drives.forEach(function(e) {
+			openFolderHTML('', e);
+		});
+		
+	} else if ( path === '/' ) {
+		openFolderHTML(path, e);
 
-        let fullPath = path + '/' + folder;
+	} else {
+		
+		path = process.platform === 'win32' ? Win32Drives.indexOf(path.replace('/', '')) !== -1 ? path.replace('/', '') : path + '/' : path + '/';
+		
+		try {
+			
+			fs.readdirSync(path.escapeQuotes()).filter(function (folder) {	
 
-        if ( fs.existsSync(fullPath) ) {
+				let fullPath = path + folder;
+				
+				try {
 
-            if (fs.statSync(fullPath).isDirectory() ) {
-                allFolders.push(folder);
-            };
+					if ( fs.existsSync(fullPath) ) {
 
-        }
+						if (fs.statSync(fullPath).isDirectory() ) {
+							allFolders.push(folder);
+						};
 
-    });
+					}
+					
+				} catch (e) {
+					console.log('Error read folder: ' + e)
+				}
 
-    const cmdListFolders = process.platform === 'win32' ? 'dir' : 'ls';
+			});
+			
+		} catch (e) {
+			console.log('Error read folder: ' + e)
+		}
+
+		cmd.get(`${cmdListFolders} "${path.escapeQuotes()}"`, function(err, data, stderr){
+			
+			console.log(`${cmdListFolders} "${path.escapeQuotes()}"`);
+			
+			if ( data ) {
+				
+				if ( process.platform === 'win32' ) {
+					
+					data.split('\n').forEach(function(e) {
+						
+						if ( e.indexOf('<DIR>') !== -1 ) {
+							
+							if ( e.split('<DIR>')[1].trim() !== '.' && e.split('<DIR>')[1].trim() !== '..' ) {
+								visibleFolders.push(e.split('<DIR>')[1].trim());
+							}
+						}
+
+					});
+					
+				} else {
+					data.split('\n').forEach(function(e) {
+						visibleFolders.push(e.trim());
+					});
+				}
+				
+			}
+
+			listFolders = hiddenFolder ? allFolders : visibleFolders;
+			
+			console.log(allFolders);
+			console.log(visibleFolders);
+
+			listFolders.forEach(function(e) {
+				openFolderHTML(path, e);
+			});
+
+		});
+		
+	}
 
 
-    cmd.get(`${cmdListFolders} "${path.escapeQuotes()}"`, function(err, data, stderr){
-
-        if ( data ) {
-            data.split('\n').forEach(function(e) {
-                visibleFolders.push(e.trim());
-            });
-        }
-
-        allFolders.forEach(function(e) {
-
-            if ( !hiddenFolder ) {
-                hiddenFolder = visibleFolders.indexOf(e) >= 0 ? true : false;
-            }
-
-            if ( hiddenFolder ) {
-
-                $('.local.list-files .directory').append(`
-                    <li class="item-select local unique">
-                        <div class="name truncate">
-                            <a class="open-local-folder" attr-path="${path}">
-                                <img class="icon" src="./assets/icons/folder.svg">
-                                <span class="item-name">${e}</span>
-                            </a>
-                        </div>
-                    </li>
-                `);
-            }
-
-        });
-
-    });
 
 }
 
-function openRemoteFolder (path) {
+function openFolderHTML(path, e) {
+	$('.local.list-files .directory').append(`
+		<li class="item-select local unique">
+			<div class="name truncate">
+				<a class="open-local-folder" attr-path="${path}">
+					<img class="icon" src="./assets/icons/folder.svg">
+					<span class="item-name">${e}</span>
+				</a>
+			</div>
+		</li>
+	`);
+}
+
+function openFolderBackHTML(backDirectory) {
+	$('.local.list-files .directory').html(`
+		<li>
+			<div class="name">
+				<a class="open-local-folder" attr-path="${backDirectory}">
+					<img class="icon" src="./assets/icons/folder.svg">
+					<span class="item-name">..</span>
+				</a>
+			</div>
+		</li>
+	`);
+}
+
+function openRemoteFolder(path) {
 
     loading(true);
     cmd.get(
