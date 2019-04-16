@@ -284,6 +284,7 @@ $('body').on('change', '#settings-section .language select', function() {
 });
 
 $('body').on('click', '#settings-section .authentication .connect', function() {
+
     let data_line = '',
         process = cmd.get(rclone + ' config create gdrive drive');
 
@@ -291,7 +292,6 @@ $('body').on('click', '#settings-section .authentication .connect', function() {
         'data',
         function(err, data, stderr) {
             data_line += data;
-            console.log(data);
             if (data_line[data_line.length-1] == '\n') {
                 $('#settings-section .authentication .message').html(`
                     <blockquote>
@@ -721,10 +721,9 @@ function realOpenLocalFolder(path) {
 
     $('.local.list-files .directory').html('');
     $('.select-folders .hidden-files input').attr('data-directory', path);
-	
-	const cmdListFolders = process.platform === 'win32' ? 'dir' : 'ls';
 
-    let backDirectory = path.split('/').slice(0, -1).join('/') || '/',
+	let cmdListFolders = process.platform === 'win32' ? `dir "${path.escapeQuotes()}"` : `cd "${path.escapeQuotes()}" && ls -d */`,
+        backDirectory = path.split('/').slice(0, -1).join('/') || '/',
         allFolders = [],
         visibleFolders = [],
 		listFolders = [],
@@ -735,24 +734,20 @@ function realOpenLocalFolder(path) {
 		openFolderBackHTML(backDirectory);
     };
 	
-
 	if ( process.platform === 'win32' && path === '/' ) {
 		Win32Drives.forEach(function(e) {
 			openFolderHTML('', e);
 		});
-		
-	} else if ( path === '/' ) {
-		openFolderHTML(path, e);
 
 	} else {
-		
-		path = process.platform === 'win32' ? Win32Drives.indexOf(path.replace('/', '')) !== -1 ? path.replace('/', '') : path + '/' : path + '/';
-		
+
+		path = process.platform === 'win32' ? Win32Drives.indexOf(path.replace('/', '')) !== -1 ? path.replace('/', '') : path : path;
+
 		try {
 			
 			fs.readdirSync(path.escapeQuotes()).filter(function (folder) {	
 
-				let fullPath = path + folder;
+				let fullPath = path + '/' + folder;
 				
 				try {
 
@@ -774,10 +769,8 @@ function realOpenLocalFolder(path) {
 			console.log('Error read folder: ' + e)
 		}
 
-		cmd.get(`${cmdListFolders} "${path.escapeQuotes()}"`, function(err, data, stderr){
-			
-			console.log(`${cmdListFolders} "${path.escapeQuotes()}"`);
-			
+		cmd.get(cmdListFolders, function(err, data, stderr){
+
 			if ( data ) {
 				
 				if ( process.platform === 'win32' ) {
@@ -795,16 +788,13 @@ function realOpenLocalFolder(path) {
 					
 				} else {
 					data.split('\n').forEach(function(e) {
-						visibleFolders.push(e.trim());
-					});
+						e && visibleFolders.push(e.substr(0,(e.length - 1)).trim());
+                    });
 				}
 				
 			}
 
 			listFolders = hiddenFolder ? allFolders : visibleFolders;
-			
-			console.log(allFolders);
-			console.log(visibleFolders);
 
 			listFolders.forEach(function(e) {
 				openFolderHTML(path, e);
