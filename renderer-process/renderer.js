@@ -23,7 +23,6 @@ const $ = require('jquery');
 
 const links = document.querySelectorAll('link[rel="import"]');
 const rclone = process.platform === 'darwin' ? 'rclone/mac/rclone' : process.platform === 'win32' ? '"rclone/win/rclone"' : 'rclone/linux/rclone';
-const slashes = process.platform === 'win32' ? '\\' : '/';
 const localStorageFileSync = new EasyLocalStorage('folders-sync');
 const sectionId = settings.get('activeSectionButtonId');
 const activeLanguage = localStorage.language || 'en-US';
@@ -709,7 +708,7 @@ let Win32Drives;
 function openLocalFolder(path) {
 	if ( process.platform === 'win32' ) {
 		cmd.get('wmic logicaldisk get name', function(err, data, stderr){
-			Win32Drives = data.split('\n').map(drive => drive.trim() + slashes).filter(drive => drive.trim() !== 'Name' + slashes && drive.trim() !== slashes);
+			Win32Drives = data.split('\n').map(drive => drive.trim()).filter(drive => drive !== 'Name' && drive !== '').map(drive => drive + '/');
 			realOpenLocalFolder(path);
 		});
 	} else {
@@ -723,12 +722,13 @@ function realOpenLocalFolder(path) {
     $('.select-folders .hidden-files input').attr('data-directory', path);
 
 	let cmdListFolders = process.platform === 'win32' ? `dir "${path.escapeQuotes()}"` : `cd "${path.escapeQuotes()}" && ls -d */`,
-        backDirectory = path.split('/').slice(0, -1).join('/') || '/',
+        backDirectory = Win32Drives.indexOf(path) !== -1 ? '/' : path.split('/').slice(0, -1).join('/'),
         allFolders = [],
         visibleFolders = [],
 		listFolders = [],
         hiddenFolder = $('.select-folders .hidden-files input').is(":checked");
 
+	console.log(cmdListFolders)
 
 	if ( path !== '/' ) {
 		openFolderBackHTML(backDirectory);
@@ -740,8 +740,6 @@ function realOpenLocalFolder(path) {
 		});
 
 	} else {
-
-		path = process.platform === 'win32' ? Win32Drives.indexOf(path.replace('/', '')) !== -1 ? path.replace('/', '') : path : path;
 
 		try {
 			
@@ -770,6 +768,8 @@ function realOpenLocalFolder(path) {
 		}
 
 		cmd.get(cmdListFolders, function(err, data, stderr){
+			
+			console.log(cmdListFolders)
 
 			if ( data ) {
 				
@@ -803,8 +803,6 @@ function realOpenLocalFolder(path) {
 		});
 		
 	}
-
-
 
 }
 
@@ -883,6 +881,8 @@ function openRemoteFolder(path) {
 function selectedFolder(path, source) {
 
     let name = path.split('/').pop();
+	
+	path = path.replace('//', '/');
 
     if ( source === 'local' ) {
         $('.selected-folders .local').html(`
@@ -958,7 +958,13 @@ function finishSyncFolder(verified) {
 
 $('body').on('click', '.open-local-folder', function(event){
     event.stopPropagation();
-    let path = ( $(this).attr('attr-path') + '/' + $(this).find('.item-name').text() ).replace('/..', '');
+
+	let attrPath = $(this).attr('attr-path'),
+		basePath = ( attrPath === '' || attrPath === '/' ) ? attrPath : attrPath + '/',
+		path = (( basePath + $(this).find('.item-name').text() ).replace('/..', '')) || '/';
+		
+		console.log(path);
+	
     openLocalFolder(path);
     selectedFolder(path, 'local');
 });
