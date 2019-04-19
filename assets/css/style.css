@@ -268,6 +268,11 @@ footer .btn-large {
   text-align: center;
 }
 
+.nav h1 .logo {
+  max-width: 150px;
+  width: 100%;
+}
+
 .nav.is-shown {
   visibility: visible;
   opacity: 1;
@@ -711,7 +716,8 @@ footer .btn-large {
 /*** SETTINGS
 /* ------------------------------------*/
 .settings {
-  padding: 0 16px;
+  overflow: auto;
+  padding: 0 16px 32px 16px;
 }
 
 .settings p {
@@ -726,7 +732,7 @@ footer .btn-large {
 
 .settings .authentication H6 .material-icons {
   font-size: 19px;
-  color: #1ea362;
+  color: #4787f3;
 }
 
 .settings .google-connect {
@@ -737,8 +743,9 @@ footer .btn-large {
   width: 50px;
 }
 
-.settings .material-icons {
+.settings h5 .material-icons {
   color: #60dd4d;
+  font-size: 27px;
 }
 
 /*-------------------------------------*/
@@ -784,6 +791,7 @@ footer .btn-large {
 
 .select-folders .selected-folders .material-icons {
   color: #60dd4d;
+  font-size: 27px;
 }
 
 /* ------------------------------------*/
@@ -828,7 +836,8 @@ footer .btn-large {
 /*** ABOUT
 /* ------------------------------------*/
 .about {
-  padding: 0 16px;
+  overflow: auto;
+  padding: 0 16px 32px 16px;
 }
 
 .about a {
@@ -859,6 +868,7 @@ footer .btn-large {
 
 .about .lisync {
   max-width: 200px;
+  width: 100%;
 }
 
 .about .others {

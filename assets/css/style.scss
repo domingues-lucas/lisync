@@ -258,6 +258,11 @@ footer {
         bottom: 20px;
         width: calc(100% - 48px);
         text-align: center;
+
+        .logo {
+            max-width: 150px;
+            width: 100%;
+        }
     }
   }
   
@@ -692,7 +697,8 @@ footer {
 /* ------------------------------------*/
 
 .settings {
-    padding: 0 16px;
+    overflow: auto;
+    padding: 0 16px 32px 16px;
 
     p {
         font-size: 14px;
@@ -710,7 +716,7 @@ footer {
 
             .material-icons {
                 font-size: 19px;
-                color: $green-gdrive;
+                color: $blue;
             }
         }
     }
@@ -723,8 +729,12 @@ footer {
         }
     }
 
-    .material-icons {
-        color: $green;
+    h5 {
+
+        .material-icons {
+            color: $green;
+            font-size: 27px;
+        }
     }
 
 }
@@ -774,6 +784,7 @@ footer {
 
         .material-icons {
             color: $green;
+            font-size: 27px;
         }
     }
 }
@@ -832,7 +843,8 @@ footer {
 /* ------------------------------------*/
 
 .about {
-    padding: 0 16px;
+    overflow: auto;
+    padding: 0 16px 32px 16px;
 
     a {
         color: $blue;
@@ -862,6 +874,7 @@ footer {
     
     .lisync {
         max-width: 200px;
+        width: 100%;
     }
 
     .others {

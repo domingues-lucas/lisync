@@ -703,14 +703,18 @@ $('body').on('click', '.open-folder', function(){
 /* ------------------------------------*/
 /*** PAGE SELECT FOLDERS
 /* ------------------------------------*/
-let Win32Drives;
+let win32Drives;
 
 function openLocalFolder(path) {
 	if ( process.platform === 'win32' ) {
-		cmd.get('wmic logicaldisk get name', function(err, data, stderr){
-			Win32Drives = data.split('\n').map(drive => drive.trim()).filter(drive => drive !== 'Name' && drive !== '').map(drive => drive + '/');
-			realOpenLocalFolder(path);
-		});
+        if (win32Drives) {
+            cmd.get('wmic logicaldisk get name', function(err, data, stderr){
+                win32Drives = data.split('\n').map(drive => drive.trim()).filter(drive => drive !== 'Name' && drive !== '').map(drive => drive + '/');
+                realOpenLocalFolder(path);
+            });
+        } else {
+            realOpenLocalFolder(path);
+        }
 	} else {
 		realOpenLocalFolder(path);
 	}
@@ -721,21 +725,20 @@ function realOpenLocalFolder(path) {
     $('.local.list-files .directory').html('');
     $('.select-folders .hidden-files input').attr('data-directory', path);
 
-	let cmdListFolders = process.platform === 'win32' ? `dir "${path.escapeQuotes()}"` : `cd "${path.escapeQuotes()}" && ls -d */`,
-        backDirectory = Win32Drives.indexOf(path) !== -1 ? '/' : path.split('/').slice(0, -1).join('/'),
+    let cmdListFolders = process.platform === 'win32' ? `dir "${path.escapeQuotes()}"` : `cd "${path.escapeQuotes()}" && ls -d */`,
+        pathBackDirectory = path.split('/').slice(0, -1).join('/'),
+        backDirectory = process.platform === 'win32' ? win32Drives.indexOf(path) !== -1 ? '/' : pathBackDirectory : pathBackDirectory,
         allFolders = [],
         visibleFolders = [],
 		listFolders = [],
         hiddenFolder = $('.select-folders .hidden-files input').is(":checked");
-
-	console.log(cmdListFolders)
 
 	if ( path !== '/' ) {
 		openFolderBackHTML(backDirectory);
     };
 	
 	if ( process.platform === 'win32' && path === '/' ) {
-		Win32Drives.forEach(function(e) {
+		win32Drives.forEach(function(e) {
 			openFolderHTML('', e);
 		});
 
