@@ -24,11 +24,12 @@
     "dateformat": "^3.0.3",
     "electron-settings": "^3.2.0",
     "hawk": "^7.0.10",
-    "jquery": "^3.3.1",
+    "jquery": "^3.4.0",
     "materialize-css": "^1.0.0",
     "moment": "^2.22.2",
     "node-cmd": "^3.0.0",
     "node-materialize": "^1.1.1",
-    "npm": "^6.4.1"
+    "npm": "^6.9.0",
+    "tar": "^4.4.8"
   }
 }
