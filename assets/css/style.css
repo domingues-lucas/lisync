@@ -832,6 +832,11 @@ footer .btn-large {
   margin: 0 16px;
 }
 
+.live-sync footer .upload p.last-sincronize {
+  margin-top: 10px;
+  color: #434343;
+}
+
 /* ------------------------------------*/
 /*** ABOUT
 /* ------------------------------------*/

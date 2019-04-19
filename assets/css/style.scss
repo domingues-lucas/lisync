@@ -832,6 +832,11 @@ footer {
 
             p {
                 margin: 0 16px;
+
+                &.last-sincronize {
+                    margin-top: 10px;
+                    color: $gray;
+                }
             }
         }
         

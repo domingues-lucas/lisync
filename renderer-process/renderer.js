@@ -8,14 +8,15 @@ const electron = require('electron');
 const BrowserWindow = electron.remote.BrowserWindow;
 const settings = require('electron-settings');
 
-const { dialog } = require('electron').remote
+// const { dialog } = require('electron').remote
 
 const cmd = require('node-cmd');
 const materialize = require('materialize-css');
 const moment = require('moment');
-const os = require('os');
+// const os = require('os');
 const fs = require('fs');
 const $ = require('jquery');
+const dateFormat = require('dateformat');
 
 /* ------------------------------------*/
 /*** GENERAL VARIABLES
@@ -224,6 +225,12 @@ String.prototype.escapeQuotes = function(a) {
     return this.replaceAll('"', '\\"')
                .replaceAll('`', '\\`');
 };
+
+function getDateNow() {
+    return activeLanguage === 'pt-BR' 
+        ? dateFormat(new Date(), "dd/mm/yyyy hh:MM:ss") 
+        : dateFormat(new Date(), "yyyy/mm/dd hh:MM:ss")
+}
 
 
 /* ------------------------------------*/
@@ -534,6 +541,8 @@ function checkSync(step) {
                         }
 
                         totalSyncs === i + 1 ? loading(false) : null;
+
+                        $('.live-sync footer .upload').html(`<p class='last-sincronize'>${getTranslation('Last sincronize at')} ${getDateNow()}</p>`);
 
                     });
 
