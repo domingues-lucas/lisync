@@ -277,8 +277,7 @@ $('body').on('click', '#settings-section .authentication .connect', function() {
         process = cmd.get(rclone + ' config create gdrive drive');
 
     process.stdout.on(
-        'data',
-        function(err, data, stderr) {
+        'data', function(err, data, stderr) {
             data_line += data;
             if (data_line[data_line.length-1] == '\n') {
                 $('#settings-section .authentication .message').html(`
@@ -446,7 +445,7 @@ function checkSync(step) {
 
                 if ( folderSync.status ) {
 
-                    cmd.get(`${rclone} check  --one-way "${folderSync.local}" "gdrive:${folderSync.remote}"`, function(err, data, stderr){
+                    cmd.get(`${rclone} check --one-way "${folderSync.local}" "gdrive:${folderSync.remote}"`, function(err, data, stderr){
 
                         let _modifiedFiles = stderr.split('\n').filter( ( elem, index, arr ) => elem.indexOf( 'ERROR' ) !== -1 );
 
@@ -482,7 +481,7 @@ function checkSync(step) {
 
                 if ( folderSync.status ) {
 
-                    cmd.get(`${rclone} check  --one-way "${folderSync.local}" "gdrive:${folderSync.remote}"`, function(err, data, stderr){
+                    cmd.get(`${rclone} check --one-way "${folderSync.local}" "gdrive:${folderSync.remote}"`, function(err, data, stderr){
 
                         let _modifiedFiles = stderr.split('\n').filter( ( elem, index, arr ) => elem.indexOf( 'ERROR' ) !== -1 ),
                             item = divContent.find('li'),
@@ -586,22 +585,12 @@ function liveSync(i){
 
                 // Desabilitado para evitar upload incorreto durante desenvolvimento
 
-                let processRef = cmd.get(`${rclone} sync --progress "${folderSync.local}" "gdrive:${folderSync.remote}"`, function(){
-                    liveSyncInProgress = false;
-                    if ( totalSyncs === i + 1 ) {
-                        console.log("LiveSync END");
-                        checkSync();
-                    } else {
-                        console.log('MAIS UM');
-                        liveSync(i + 1);
-                    }
-                });
+                let process = cmd.get(`${rclone} sync --progress "${folderSync.local}" "gdrive:${folderSync.remote}"`);
 
-                processRef.stdout.on(
-                    'data',
-                    function(data) {
+                process.stdout.on(
+                    'data', function(data) {
 						
-						console.log(data)
+						console.log("STDOUT")
 
                         data = data.split('\n');
 
@@ -620,6 +609,21 @@ function liveSync(i){
 
                     }
                 );
+
+				process.on(
+					'exit', function() {
+						console.log("EXIT")
+						
+						liveSyncInProgress = false;
+						if ( totalSyncs === i + 1 ) {
+							console.log("LiveSync END");
+							checkSync();
+						} else {
+							console.log('MAIS UM');
+							liveSync(i + 1);
+						}
+					}
+				);
             }
         }
     }
@@ -1146,7 +1150,7 @@ $(".titlebar .titlebar-resize").on("click", (e) => {
 // Close app
 $(".titlebar .titlebar-close").on("click", (e) => {
     let window = BrowserWindow.getFocusedWindow();
-    window.close();
+    window.hide();
 });
 
 /* ------------------------------------*/

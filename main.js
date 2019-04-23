@@ -1,9 +1,9 @@
 'use strict';
 
-const {BrowserWindow, Menu, app, shell, dialog} = require('electron');
+const {BrowserWindow, Menu, app, shell, dialog, Tray} = require('electron');
 const os = require('os');
-var path = require('path');
 
+var path = require('path');
 var mainWindow;
 
 function createWindow () {
@@ -24,6 +24,7 @@ function createWindow () {
 }
 
 app.on('ready', createWindow)
+
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {
     app.quit();
@@ -35,3 +36,17 @@ app.on('activate', function () {
     createWindow();
   }
 });
+
+let tray = null
+app.on('ready', () => {
+  tray = new Tray('assets/app-icon/png/32.png')
+  const contextMenu = Menu.buildFromTemplate([
+    { label: 'Show', type: 'normal', click:  function(){
+        mainWindow.show();
+    }},
+	{ type: 'separator' },
+	{ label: 'Exit', type: 'normal', role: 'quit' }
+  ])
+  tray.setToolTip('Lisync')
+  tray.setContextMenu(contextMenu)
+})
