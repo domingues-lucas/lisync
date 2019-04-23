@@ -8,15 +8,12 @@ const electron = require('electron');
 const BrowserWindow = electron.remote.BrowserWindow;
 const settings = require('electron-settings');
 
-// const { dialog } = require('electron').remote
-
-const cmd = require('node-cmd');
-const materialize = require('materialize-css');
-const moment = require('moment');
-// const os = require('os');
 const fs = require('fs');
+const cmd = require('node-cmd');
+const moment = require('moment');
+const bytes = require('bytes');
 const $ = require('jquery');
-const dateFormat = require('dateformat');
+const materialize = require('materialize-css');
 
 /* ------------------------------------*/
 /*** GENERAL VARIABLES
@@ -140,7 +137,8 @@ function handleSectionTrigger (e) {
         checkSync('first');
 
     } else if (section === 'select-folders') {
-        openLocalFolder('/');
+        // openLocalFolder(electron.remote.app.getPath('documents'));
+		openLocalFolder('/');
         openRemoteFolder('/');
 
     } else if (section === 'settings') {
@@ -184,19 +182,7 @@ function loading(option) {
 
 
 Number.prototype.bytesFormat = function() {
-    let value;
-    if ( this === 0 ) {
-        value = '-'
-    } else if ( this < 1000) {
-        value = this + 'B'
-    } else if ( this < 1000000 ) {
-        value = (this/1000).toFixed(1) + 'K'
-    } else if ( this < 1000000000 ) {
-        value = (this/1000000).toFixed(1) + 'M'
-    } else {
-        value = (this/1000000000).toFixed(1) + 'G'
-    }
-    return value;
+    return this > 0 ? bytes(this) : "-";
 };
 
 String.prototype.lastElement = function(_split) {
@@ -225,13 +211,6 @@ String.prototype.escapeQuotes = function(a) {
     return this.replaceAll('"', '\\"')
                .replaceAll('`', '\\`');
 };
-
-function getDateNow() {
-    return activeLanguage === 'pt-BR' 
-        ? dateFormat(new Date(), "dd/mm/yyyy hh:MM:ss") 
-        : dateFormat(new Date(), "yyyy/mm/dd hh:MM:ss")
-}
-
 
 /* ------------------------------------*/
 /*** GENERAL EVENTS
@@ -276,6 +255,9 @@ document.addEventListener('DOMContentLoaded', function() {
     M.Modal.init(document.querySelectorAll('.modal'));
     M.FormSelect.init(document.querySelectorAll('select'));
 });
+
+// Location MomentJS
+moment.locale(activeLanguage);
 
 
 /* ------------------------------------*/
@@ -542,7 +524,7 @@ function checkSync(step) {
 
                         totalSyncs === i + 1 ? loading(false) : null;
 
-                        $('.live-sync footer .upload').html(`<p class='last-sincronize'>${getTranslation('Last sincronize at')} ${getDateNow()}</p>`);
+                        $('.live-sync footer .upload').html(`<p class='last-sincronize'>${getTranslation('Last sincronize at')} ${moment().format('LLL')}</p>`);
 
                     });
 
@@ -585,7 +567,6 @@ function syncRowHTML(_class, directory, icon, name, date, size) {
 function liveSync(i){
 
     i = i || 0;
-
     checkSync();
 
     if ( !liveSyncInProgress ) {
@@ -619,6 +600,8 @@ function liveSync(i){
                 processRef.stdout.on(
                     'data',
                     function(data) {
+						
+						console.log(data)
 
                         data = data.split('\n');
 
@@ -712,11 +695,11 @@ $('body').on('click', '.open-folder', function(){
 /* ------------------------------------*/
 /*** PAGE SELECT FOLDERS
 /* ------------------------------------*/
-let win32Drives;
+var win32Drives;
 
 function openLocalFolder(path) {
 	if ( process.platform === 'win32' ) {
-        if (win32Drives) {
+        if (!win32Drives) {
             cmd.get('wmic logicaldisk get name', function(err, data, stderr){
                 win32Drives = data.split('\n').map(drive => drive.trim()).filter(drive => drive !== 'Name' && drive !== '').map(drive => drive + '/');
                 realOpenLocalFolder(path);
