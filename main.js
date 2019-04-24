@@ -18,7 +18,7 @@ function createWindow () {
 
     mainWindow.loadFile('index.html');
     mainWindow.setMenuBarVisibility(false);
-    mainWindow.setMenu(null);
+    // mainWindow.setMenu(null);
     mainWindow.webContents.openDevTools();
 
     mainWindow.on('close', function (event) {

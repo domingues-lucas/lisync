@@ -2,53 +2,14 @@
 /*** VARIABLES
 /* ----------------------------*/
 /* ----------------------------*/
-/*** IMPORTS
-/* ----------------------------*/
-/* Section ------------------ */
-.section {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-  width: 100%;
-  font-size: 13px;
-  /* Hide */
-  pointer-events: none;
-  visibility: hidden;
-  opacity: 0;
-  -webkit-transform: translateX(-20px);
-          transform: translateX(-20px);
-  -webkit-transition: visibility 0s .12s linear , opacity .12s ease-in, -webkit-transform .12s ease-in;
-  transition: visibility 0s .12s linear , opacity .12s ease-in, -webkit-transform .12s ease-in;
-  transition: visibility 0s .12s linear , opacity .12s ease-in, transform .12s ease-in;
-  transition: visibility 0s .12s linear , opacity .12s ease-in, transform .12s ease-in , -webkit-transform .12s ease-in;
-}
-
-.section.is-shown {
-  pointer-events: auto;
-  visibility: visible;
-  opacity: 1;
-  -webkit-transform: translateX(0);
-          transform: translateX(0);
-  -webkit-transition: visibility 0s 0s linear , opacity .36s ease-out, -webkit-transform .36s ease-out;
-  transition: visibility 0s 0s linear , opacity .36s ease-out, -webkit-transform .36s ease-out;
-  transition: visibility 0s 0s linear , opacity .36s ease-out, transform .36s ease-out;
-  transition: visibility 0s 0s linear , opacity .36s ease-out, transform .36s ease-out , -webkit-transform .36s ease-out;
-}
-
-/* ----------------------------*/
 /*** GENERAL
 /* ----------------------------*/
 html {
   overflow: hidden;
-  border-radius: 3px;
-  overflow: hidden;
 }
 
 .progress {
-  top: 32px;
+  top: 0;
   opacity: 0;
   position: absolute;
   margin: 0;
@@ -100,11 +61,6 @@ h1 {
   background-color: #4787f3;
 }
 
-.title-bar {
-  height: 6px;
-  background-color: #60dd4d;
-}
-
 footer {
   padding-right: 12px;
   border-top: 1px solid #ddd;
@@ -114,13 +70,6 @@ footer {
 footer .btn,
 footer .btn-large {
   margin: 12px 0 0 18px;
-}
-
-.materialize-section {
-  position: relative;
-  visibility: visible;
-  opacity: 1;
-  margin-left: 21px;
 }
 
 .dropdown-content li > a,
@@ -242,6 +191,54 @@ footer .btn-large {
 .titlebar .logo {
   float: left;
   margin: 4px 16px 0 12px;
+}
+
+.title-bar {
+  height: 6px;
+  background-color: #60dd4d;
+}
+
+/* ------------------------------------*/
+/*** SECTIONS
+/* ------------------------------------*/
+.section {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  width: 100%;
+  font-size: 13px;
+  /* Hide */
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  -webkit-transform: translateX(-20px);
+          transform: translateX(-20px);
+  -webkit-transition: visibility 0s .12s linear , opacity .12s ease-in, -webkit-transform .12s ease-in;
+  transition: visibility 0s .12s linear , opacity .12s ease-in, -webkit-transform .12s ease-in;
+  transition: visibility 0s .12s linear , opacity .12s ease-in, transform .12s ease-in;
+  transition: visibility 0s .12s linear , opacity .12s ease-in, transform .12s ease-in , -webkit-transform .12s ease-in;
+}
+
+.section.is-shown {
+  pointer-events: auto;
+  visibility: visible;
+  opacity: 1;
+  -webkit-transform: translateX(0);
+          transform: translateX(0);
+  -webkit-transition: visibility 0s 0s linear , opacity .36s ease-out, -webkit-transform .36s ease-out;
+  transition: visibility 0s 0s linear , opacity .36s ease-out, -webkit-transform .36s ease-out;
+  transition: visibility 0s 0s linear , opacity .36s ease-out, transform .36s ease-out;
+  transition: visibility 0s 0s linear , opacity .36s ease-out, transform .36s ease-out , -webkit-transform .36s ease-out;
+}
+
+.materialize-section {
+  position: relative;
+  visibility: visible;
+  opacity: 1;
+  margin-left: 21px;
 }
 
 /* ------------------------------------*/
@@ -480,7 +477,7 @@ footer .btn-large {
 .list-files {
   overflow-y: scroll;
   overflow-x: hidden;
-  height: calc(100vh - 150px);
+  height: calc(100vh - 118px);
 }
 
 .list-files .icon {

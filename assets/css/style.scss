@@ -10,23 +10,15 @@ $gray: #434343;
 $gray-light: #9e9e9e;
 
 /* ----------------------------*/
-/*** IMPORTS
-/* ----------------------------*/ 
-
-@import "section.scss";
-
-/* ----------------------------*/
 /*** GENERAL
 /* ----------------------------*/
 
 html {
     overflow: hidden;
-    border-radius: 3px;
-    overflow: hidden;
 }
 
 .progress {
-    top: 32px;
+    top: 0;
     opacity: 0;
     position: absolute;
     margin: 0;
@@ -76,11 +68,6 @@ h1 {
     }
 }
 
-.title-bar {
-    height: 6px;
-    background-color: $green;
-}
-
 footer {
     padding-right: 12px;
     border-top: 1px solid #ddd;
@@ -91,13 +78,6 @@ footer {
         margin: 12px 0 0 18px;
     }
 
-}
-
-.materialize-section {
-    position: relative;
-    visibility: visible;
-    opacity: 1;
-    margin-left: 21px;
 }
 
 .dropdown-content li>a, 
@@ -235,6 +215,48 @@ footer {
 
 }
 
+.title-bar {
+    height: 6px;
+    background-color: $green;
+}
+
+
+/* ------------------------------------*/
+/*** SECTIONS
+/* ------------------------------------*/
+
+.section {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    width: 100%;
+    font-size: 13px;
+  
+    /* Hide */
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: visibility 0s .12s linear , opacity .12s ease-in, transform .12s ease-in;
+}
+  
+.section.is-shown {
+    pointer-events: auto;
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(0);
+    transition: visibility 0s 0s linear , opacity .36s ease-out, transform .36s ease-out;
+}
+
+.materialize-section {
+    position: relative;
+    visibility: visible;
+    opacity: 1;
+    margin-left: 21px;
+}
 
 /* ------------------------------------*/
 /*** NAVBAR
@@ -454,7 +476,7 @@ footer {
 .list-files {   
     overflow-y: scroll;
     overflow-x: hidden;
-    height: calc(100vh - 150px);
+    height: calc(100vh - 118px);
 
     .icon {
         float: left;
