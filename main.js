@@ -3,50 +3,52 @@
 const {BrowserWindow, Menu, app, shell, dialog, Tray} = require('electron');
 const os = require('os');
 
-var path = require('path');
-var mainWindow;
+let path = require('path');
+let mainWindow;
+let tray = null;
 
 function createWindow () {
 
     mainWindow = new BrowserWindow({
-        frame: false,
+        frame: true,
         width: 600,
         height: 300,
         icon: path.join(__dirname, 'assets/app-icon/png/64.png')
     });
 
     mainWindow.loadFile('index.html');
+    mainWindow.setMenuBarVisibility(false);
+    mainWindow.setMenu(null);
     mainWindow.webContents.openDevTools();
-    mainWindow.on('closed', function () {
-        mainWindow = null;
-    });
 
+    mainWindow.on('close', function (event) {
+        if(!app.isQuiting){
+            event.preventDefault();
+            mainWindow.hide();
+        }
+    
+        return false;
+    });
+    
+    tray = new Tray('assets/app-icon/png/32.png');
+    const contextMenu = Menu.buildFromTemplate([
+        { label: 'Show', type: 'normal', click:  function(){
+            mainWindow.show();
+        }},
+        { type: 'separator' },
+        { label: 'Exit', click:  function(){
+            app.isQuiting = true;
+            app.quit();
+        } }
+    ]);
+    tray.setToolTip('Lisync');
+    tray.setContextMenu(contextMenu);
 }
 
-app.on('ready', createWindow)
-
-app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
+app.on('ready', createWindow);
 
 app.on('activate', function () {
-  if (mainWindow === null) {
-    createWindow();
-  }
+    if (mainWindow === null) {
+        createWindow();
+    }
 });
-
-let tray = null
-app.on('ready', () => {
-  tray = new Tray('assets/app-icon/png/32.png')
-  const contextMenu = Menu.buildFromTemplate([
-    { label: 'Show', type: 'normal', click:  function(){
-        mainWindow.show();
-    }},
-	{ type: 'separator' },
-	{ label: 'Exit', type: 'normal', role: 'quit' }
-  ])
-  tray.setToolTip('Lisync')
-  tray.setContextMenu(contextMenu)
-})
