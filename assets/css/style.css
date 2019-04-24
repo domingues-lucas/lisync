@@ -728,7 +728,8 @@ footer .btn-large {
 }
 
 .settings .authentication H6 .material-icons {
-  font-size: 19px;
+  margin-top: -1px;
+  font-size: 22px;
   color: #4787f3;
 }
 
