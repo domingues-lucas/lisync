@@ -8,6 +8,7 @@ const electron = require('electron');
 const BrowserWindow = electron.remote.BrowserWindow;
 const settings = require('electron-settings');
 
+const os = require('os');
 const fs = require('fs');
 const cmd = require('node-cmd');
 const moment = require('moment');
@@ -273,11 +274,15 @@ $('body').on('change', '#settings-section .language select', function() {
 
 $('body').on('click', '#settings-section .authentication .connect', function() {
 
+    console.log('Iniciando autenticação ...')
+
     let data_line = '',
         process = cmd.get(rclone + ' config create gdrive drive');
 
+    console.log(rclone + ' config create gdrive drive');
+
     process.stdout.on(
-        'data', function(err, data, stderr) {
+        'data', function(data) {
             data_line += data;
             if (data_line[data_line.length-1] == '\n') {
                 $('#settings-section .authentication .message').html(`
@@ -287,6 +292,38 @@ $('body').on('click', '#settings-section .authentication .connect', function() {
                     </blockquote>
                 `);
             };
+        }
+    );
+
+    process.stderr.on(
+        'data', function(e) {
+            $('.modal-error .description').html(`<p>${e}</p>`);
+            var instance = M.Modal.getInstance(document.querySelector('.modal-error'));
+            instance.open();
+
+            cmd.get(rclone + ' config file', function(err, data, stderr) {
+
+                if (data && data.split('\n').length > 0) {
+                    let confFile = data.split('\n')[1];
+
+                    // FIXME: Prompt or input for get sudo password
+                    const processRef = cmd.get(`sudo chown ${os.userInfo().username} ${confFile}`);
+                    processRef.stdin.write('password');
+
+                    // Check if the file is writable.
+                    fs.access(confFile, fs.constants.W_OK, (err) => {
+
+                        console.log(`${confFile} ${err ? 'is not writable' : 'is writable'}`);
+
+                        if (err) {
+                            fs.chmod(confFile, 0o755, (err) => {
+                                if (err) throw err;
+                                console.log(`The permissions for file ${confFile} have been changed!`);
+                            });
+                        }
+                    });
+                }
+            });
         }
     );
 

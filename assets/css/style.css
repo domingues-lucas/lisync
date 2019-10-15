@@ -82,6 +82,18 @@ footer .btn-large {
 }
 
 /* ----------------------------*/
+/*** MODAL
+/* ----------------------------*/
+.modal.modal-error h4 {
+  color: #cc0000;
+  font-size: 24px;
+}
+
+.modal.modal-error h4 .material-icons {
+  vertical-align: top;
+}
+
+/* ----------------------------*/
 /*** TITLE BAR https://github.com/sidneys/electron-titlebar-windows
 /* ----------------------------*/
 .titlebar {
