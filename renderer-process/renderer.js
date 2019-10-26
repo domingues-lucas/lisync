@@ -300,7 +300,6 @@ $('body').on('click', '#settings-section .authentication .connect', function() {
             $('.modal-error .description').html(`<p>${e}</p>`);
             var instance = M.Modal.getInstance(document.querySelector('.modal-error'));
             instance.open();
-
             cmd.get(rclone + ' config file', function(err, data, stderr) {
 
                 if (data && data.split('\n').length > 0) {
@@ -804,8 +803,6 @@ function realOpenLocalFolder(path) {
 		}
 
 		cmd.get(cmdListFolders, function(err, data, stderr){
-			
-			console.log(cmdListFolders)
 
 			if ( data ) {
 				
@@ -828,8 +825,8 @@ function realOpenLocalFolder(path) {
                     });
 				}
 				
-			}
-
+            }
+  
 			listFolders = hiddenFolder ? allFolders : visibleFolders;
 
 			listFolders.forEach(function(e) {
@@ -995,12 +992,12 @@ function finishSyncFolder(verified) {
 $('body').on('click', '.open-local-folder', function(event){
     event.stopPropagation();
 
+    console.log($(this).attr('attr-path'))
+
 	let attrPath = $(this).attr('attr-path'),
-		basePath = ( attrPath === '' || attrPath === '/' ) ? attrPath : attrPath + '/',
+		basePath = ( attrPath === '' || attrPath === '/' ) ? '/' : attrPath + '/',
 		path = (( basePath + $(this).find('.item-name').text() ).replace('/..', '')) || '/';
 		
-		console.log(path);
-	
     openLocalFolder(path);
     selectedFolder(path, 'local');
 });
