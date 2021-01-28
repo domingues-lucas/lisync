@@ -16,7 +16,7 @@
   "license": "CC0-1.0",
   "devDependencies": {
     "curl": "^0.1.4",
-    "electron": "^3.0.8",
+    "electron": "^9.4.0",
     "jsdom": "^11.12.0"
   },
   "dependencies": {
