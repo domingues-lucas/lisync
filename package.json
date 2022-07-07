@@ -24,7 +24,7 @@
     "electron-settings": "^3.2.0",
     "hawk": "^7.0.10",
     "materialize-css": "^1.0.0",
-    "moment": "^2.22.2",
+    "moment": "^2.29.4",
     "node-cmd": "^3.0.0",
     "node-materialize": "^1.1.1",
     "npm": "^6.4.1"
